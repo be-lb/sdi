@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^api/', include('api.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^client/', include('clients.urls')),
+    url(r'^documents/', include('documents.urls')),
     url(r'^login/$',
         auth_views.LoginView.as_view(template_name='main/login.html'), name='login')
 ]

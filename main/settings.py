@@ -26,8 +26,8 @@ SECRET_KEY = 'pf1&!nhd&i4p=r%aa@m!1r#r^6v*ncl@hkhg6a22mj@o8j+-ty'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-        'localhost', '127.0.0.1', '.speculoos'
-        ]
+    'localhost', '127.0.0.1', '.speculoos'
+]
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'layers',
     'api',
     'clients',
+    'documents',
     'rest_framework',
     'rest_framework_gis',
     'corsheaders',
@@ -193,3 +194,5 @@ DEFAULT_BASE_LAYER = {
         'nl': 'https://geoservices-urbis.irisnet.be/geoserver/ows',
     },
 }
+
+MEDIA_ROOT = '/home/pierre/System/var/www/sdi/'
