@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>sdi - clients</title>
+    </script>
+</head>
+
+<body>
+    {% for client in clients %}
+    <h1><a href="/client/{{ client }}">{{ client }}</a></h1>
+    {% endfor %}
+</body>
+
+</html>

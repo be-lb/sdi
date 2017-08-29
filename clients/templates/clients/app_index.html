@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>{{ app_name }}</title>
+    <link rel="stylesheet" type="text/css" href="{{ assets_root }}style.css">
+    <script>
+        window.SDI = Object.create({
+        {% if user_id %} user: "{{ user_id }}", {% else %} user = null, {% endif %}
+        path: "{{ path }}",
+            api : "{{ api }}",
+                csrf : "{{ csrf_token }}",
+        });
+    </script>
+    <script src="{{ bundle_url }}">
+
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>
