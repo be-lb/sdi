@@ -3,6 +3,7 @@ import mimetypes
 import os
 import posixpath
 import stat
+from collections import namedtuple
 
 from django.shortcuts import render
 from django.conf import settings
@@ -17,6 +18,32 @@ from django.views import static
 from django.utils._os import safe_join
 
 
+Bundle = namedtuple('Bundle', ['mtime', 'data'])
+BUNDLE_CACHE = dict()
+
+
+def update_bundle(fullpath, mtime):
+    with open(fullpath, 'rb') as f:
+        data = f.read()
+        BUNDLE_CACHE[fullpath] = Bundle(mtime, data)
+        print('******************************\nBundle update [{}] [{}] '.format(
+            fullpath,
+            mtime,
+        ))
+
+
+def get_bundle(fullpath):
+    statobj = os.stat(fullpath)
+    mtime = statobj.st_mtime
+    if fullpath in BUNDLE_CACHE:
+        if mtime != BUNDLE_CACHE[fullpath]:
+            update_bundle(fullpath, mtime)
+    else:
+        update_bundle(fullpath, mtime)
+
+    return BUNDLE_CACHE[fullpath].data
+
+
 def render_index(request, app_name, path):
     user_id = ''
     if request.user.is_authenticated():
@@ -24,10 +51,20 @@ def render_index(request, app_name, path):
 
     return render(request, 'clients/app_index.html', context=dict(
         app_name=app_name,
+        bundle_url=reverse('clients.bundle', args=(app_name, path)),
+        style_url=reverse('clients.assets', args=(app_name, 'style.css')),
+    ))
+
+
+def render_bundle(request, path, fullpath):
+    user_id = ''
+    if request.user.is_authenticated():
+        user_id = request.user.id
+
+    return render(request, 'clients/bundle.js', context=dict(
         path=path,
+        bundle=get_bundle(fullpath),
         user_id=request.user.id,
-        bundle_url=reverse('clients.bundle', args=(app_name,)),
-        assets_root=reverse('clients.assets', args=(app_name, path,)),
         api=reverse('api-root'),
         csrf_token=get_token(request),
     ))
@@ -59,15 +96,16 @@ def app_index(request, app_name, path):
     normalized_path = unquote(path).lstrip('/')
     if not normalized_path:
         return render_index(request, app_name, path)
+    return render_index(request, app_name, normalized_path)
 
 
-def app(request, app_name):
+def app(request, app_name, path):
     if app_name not in settings.CLIENTS:
         raise Http404('{} not configured'.format(app_name))
     client_root = settings.CLIENTS[app_name]
     fullpath = safe_join(client_root, 'bundle.js')
 
-    return serve_static(fullpath)
+    return render_bundle(request, path, fullpath)
 
 
 def style(request, app_name, path):

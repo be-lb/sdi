@@ -173,7 +173,8 @@ STATIC_URL = '/static/'
 
 
 CLIENTS = {
-    'edit': '/home/pierre/System/src/be-sdi/sdi-webgis-rw/dist',
+    'compose': '/home/pierre/System/src/be-sdi/sdi-webgis-rw/dist',
+    'view': '/home/pierre/System/src/be-sdi/webgis-ro/dist',
 }
 
 DEFAULT_BASE_LAYER = {

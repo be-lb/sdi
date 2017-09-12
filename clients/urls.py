@@ -3,7 +3,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^bundle/(?P<app_name>.+)$',
+    url(r'^bundle/(?P<app_name>.+)/(?P<path>.*)$',
         views.app, name='clients.bundle'),
     url(r'^assets/(?P<app_name>.+)/(?P<path>.*)$',
         views.style, name='clients.assets'),
