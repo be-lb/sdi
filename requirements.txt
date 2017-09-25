@@ -37,7 +37,7 @@ django-storages==1.1.8
 django-taggit==0.21.0
 django-tastypie==0.12.2
 django-treebeard==3.0
-django-user-accounts==2.0.2.dev0
+django-user-accounts==2.0.3
 djangorestframework==3.6.3
 djangorestframework-gis==0.11.2
 elasticsearch==2.4.0
