@@ -1,4 +1,4 @@
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -12,7 +12,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 """sdi_api URL Configuration
 
@@ -41,5 +41,7 @@ urlpatterns = [
     url(r'^client/', include('clients.urls')),
     url(r'^documents/', include('documents.urls')),
     url(r'^login/$',
-        auth_views.LoginView.as_view(template_name='main/login.html'), name='login')
+        auth_views.LoginView.as_view(
+            template_name='main/login.html'), name='login'),
+    url(r'^catalog/', include('catalog.urls')),
 ]

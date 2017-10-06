@@ -121,6 +121,33 @@ MEDIA_ROOT = '/var/www/sdi/'
 
 ```
 
+## logging
+
+Here we'll use ELK (elasticsearch, logstash & kibana). A simple setup is to run a ELK container such as http://elk-docker.readthedocs.io/
+and python-logstash package.
 
 
 
+```python
+LOGGING = {
+  
+    'handlers': {
+        'logstash': {
+            'level': 'ERROR',
+            'class': 'logstash.TCPLogstashHandler',
+            'host': 'localhost',
+            'port': 5959, # Default value: 5959
+            'version': 1, # Version of logstash event schema. Default value: 0 (for backward compatibility of the library)
+            'message_type': 'django',  # 'type' field in logstash message. Default value: 'logstash'.
+            'fqdn': False, # Fully qualified domain name. Default value: false.
+            'tags': ['django.request'], # list of tags. Default: None.
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['logstash'],
+            'level': 'ERROR',
+            'propagate': True,
+    },
+}
+```
