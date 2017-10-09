@@ -28,12 +28,18 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models.constants import LOOKUP_SEP
 
-
 requires_system_checks = False
+
+
+def get_manager(schema):
+    m = models.Manager().db_manager(schema)
+    # print('Created Manager On DB: {} {}'.format(schema, m.uuid))
+    return m
 
 
 def inspect_table(schema, table_name):
     connection = connections[schema]
+
     # 'table_name_filter' is a stealth option
 
     def table2model(table_name):
@@ -46,8 +52,8 @@ def inspect_table(schema, table_name):
         known_models = []
         try:
             try:
-                relations = connection.introspection.get_relations(
-                    cursor, table_name)
+                relations = connection.introspection.get_relations(cursor,
+                                                                   table_name)
             except NotImplementedError:
                 relations = {}
             try:
@@ -75,12 +81,13 @@ def inspect_table(schema, table_name):
 
         model_fields = dict()
         geometry_field = None
+        geometry_type = None
         for row in table_description:
             comment_notes = []
-                # Holds Field notes, to be displayed in a Python comment.
+            # Holds Field notes, to be displayed in a Python comment.
             extra_params = OrderedDict()
-                                       # Holds Field parameters such as
-                                       # 'db_column'.
+            # Holds Field parameters such as
+            # 'db_column'.
             column_name = row[0]
             is_relation = column_name in relations
 
@@ -99,10 +106,8 @@ def inspect_table(schema, table_name):
                 extra_params['unique'] = True
 
             if is_relation:
-                rel_to = (
-                    "self" if relations[column_name][1] == table_name
-                    else table2model(relations[column_name][1])
-                )
+                rel_to = ("self" if relations[column_name][1] == table_name
+                          else table2model(relations[column_name][1]))
                 if rel_to in known_models:
                     field_type = 'ForeignKey(%s' % rel_to
                 else:
@@ -118,6 +123,7 @@ def inspect_table(schema, table_name):
 
             if (not geometry_field) and is_geometry:
                 geometry_field = att_name
+                geometry_type = field_type
 
             # Don't output 'id = meta.AutoField(primary_key=True)', because
             # that's assumed if it doesn't exist.
@@ -160,13 +166,14 @@ def inspect_table(schema, table_name):
             model_fields[att_name] = F(**extra_params)
 
         meta_class = get_meta(table_name, constraints, column_to_field_name)
-        model_fields.update(dict(
-            Meta=meta_class,
-            __module__='layers.models',
-        ))
+        model_fields.update(
+            dict(
+                Meta=meta_class,
+                __module__='layers.models',
+                objects=get_manager(schema)))
 
-        T = type(table2model(table_name), (models.Model,), model_fields)
-        return T, geometry_field
+        T = type(table2model(table_name), (models.Model, ), model_fields)
+        return T, geometry_field, geometry_type
 
 
 def normalize_col_name(col_name, used_column_names, is_relation):
@@ -197,7 +204,8 @@ def normalize_col_name(col_name, used_column_names, is_relation):
             # Only add the comment if the double underscore was in the original
             # name
             field_notes.append(
-                "Field renamed because it contained more than one '_' in a row.")
+                "Field renamed because it contained more than one '_' in a row."
+            )
 
     if new_name.startswith('_'):
         new_name = 'field%s' % new_name
@@ -261,8 +269,7 @@ def get_field_type(connection, table_name, row):
                 'max_digits and decimal_places have been guessed, as this '
                 'database handles decimal fields as float')
             field_params['max_digits'] = row[4] if row[4] is not None else 10
-            field_params['decimal_places'] = row[
-                5] if row[5] is not None else 5
+            field_params['decimal_places'] = row[5] if row[5] is not None else 5
         else:
             field_params['max_digits'] = row[4]
             field_params['decimal_places'] = row[5]
@@ -296,14 +303,15 @@ def get_meta(table_name, constraints, column_to_field_name):
     #             tup = '(' + ', '.join("'%s'" % column_to_field_name[c] for c in columns) + ')'
     #             unique_together.append(tup)
 
-    return type('Meta', (), dict(
-        managed=False,
-        db_table=table_name,
-        app_label='layers'))
+    return type(
+        'Meta', (),
+        dict(
+            managed=False, db_table=table_name, app_label='layers'))
     # if unique_together:
     #     tup = '(' + ', '.join(unique_together) + ',)'
     #     meta += ["        unique_together = %s" % tup]
     # return meta
+
 
 LAYER_MODELS = dict()
 
