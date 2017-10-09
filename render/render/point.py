@@ -11,17 +11,17 @@ def make_style(symbolizers):
     return style
 
 
-def make_symbolizer(config):
-    s = mapnik.LineSymbolizer()
-    s.stroke = mapnik.Color(config['strokeColor'])
-    s.stroke_width = config['strokeWidth']
-    if 'dash' in config:
-        s.stroke_dasharray = config['dash']
+# def make_symbolizer(config):
+#     s = mapnik.LineSymbolizer()
+#     s.stroke = mapnik.Color(config['strokeColor'])
+#     s.stroke_width = config['strokeWidth']
+#     if 'dash' in config:
+#         s.stroke_dasharray = config['dash']
+#     return s
+def make_label_symbolizer(config):
 
-    return s
 
-
-def line_style_simple(config):
+def point_style_simple(config):
     return make_style([make_symbolizer(config)])
 
 

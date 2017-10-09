@@ -1,5 +1,5 @@
 
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from layers.models import get_layer
@@ -33,7 +33,7 @@ from layers.models import get_layer
 #                 json_ser = partial(json_ser_for_model, att_name)
 
 def get_serializer(schema, table):
-    model, geometry_field = get_layer(schema, table)
+    model, geometry_field, geometry_field_type = get_layer(schema, table)
     meta = type('Meta', (), dict(
         model=model,
         fields='__all__',
@@ -49,6 +49,6 @@ def get_serializer(schema, table):
 
 
 def get_model(schema, table):
-    model, geometry_field = get_layer(schema, table)
+    model, geometry_field, geometry_field_type = get_layer(schema, table)
 
     return model

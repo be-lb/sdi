@@ -1,4 +1,4 @@
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -12,7 +12,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 import json
 
@@ -25,10 +25,10 @@ from django.db import connections
 
 
 def layer(request, schema, table):
-    model, ser = get_layer(schema, table)
+    model, gf, gft = get_layer(schema, table)
     items = model.objects.using(schema).all()
     print(len(items))
-    json = ser(items)
+    json = serialize('geojson', items, geometry_field=gf)
     return HttpResponse(json)
 
 

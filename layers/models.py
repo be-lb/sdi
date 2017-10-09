@@ -1,4 +1,4 @@
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -12,12 +12,11 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 from django.contrib.gis.db import models
 from django.db import models as django_models
 from django.conf import settings
-from django.core.serializers import serialize
 
 import keyword
 import re
@@ -269,7 +268,8 @@ def get_field_type(connection, table_name, row):
                 'max_digits and decimal_places have been guessed, as this '
                 'database handles decimal fields as float')
             field_params['max_digits'] = row[4] if row[4] is not None else 10
-            field_params['decimal_places'] = row[5] if row[5] is not None else 5
+            field_params['decimal_places'] = row[
+                5] if row[5] is not None else 5
         else:
             field_params['max_digits'] = row[4]
             field_params['decimal_places'] = row[5]
@@ -317,7 +317,7 @@ LAYER_MODELS = dict()
 
 
 def get_layer(schema, table_name):
-    """returns a tuple (Model, geometry_field) for a given table in given schema
+    """returns a tuple (Model, geometry_field, geometry_field_type) for a given table in given schema
     """
     fn = '{}.{}'.format(schema, table_name)
     if fn not in LAYER_MODELS:
