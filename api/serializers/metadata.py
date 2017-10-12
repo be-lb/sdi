@@ -1,4 +1,4 @@
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -12,7 +12,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 from rest_framework import serializers
 
@@ -149,6 +149,7 @@ class MetaDataSerializer(serializers.ModelSerializer):
             'responsibleOrganisation',
             'metadataPointOfContact',
             'metadataDate',
+            'published',
         )
 
     def get_id(self, instance):
@@ -164,3 +165,13 @@ class MetaDataSerializer(serializers.ModelSerializer):
     #     return [BoundingBoxSerializer(
     #             instance=instance.bounding_box
     #             ).data]
+
+    def update(self, instance, validated_data):
+        print('validated_data {}'.format(validated_data))
+        title_data = validated_data.get('title')
+        abstract_data = validated_data.get('abstract')
+
+        instance.update_title(title_data)
+        instance.update_abstract(abstract_data)
+
+        return instance

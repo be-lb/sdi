@@ -1,4 +1,4 @@
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -12,7 +12,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 import math
 import json
@@ -133,7 +133,6 @@ class UserMapSerializer(NonNullModelSerializer):
         )
 
     def update(self, instance, validated_data):
-        # raise Exception('WTF {}'.format(validated_data))
         title_data = validated_data.get('title')
         description_data = validated_data.get('description')
         image_url = validated_data.get('image_url')

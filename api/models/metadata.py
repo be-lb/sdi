@@ -1,5 +1,5 @@
 
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 import uuid
 from django.utils import timezone
@@ -166,6 +166,12 @@ class MetaData(models.Model):
 
     def __str__(self):
         return '[{}], {}'.format(self.resource_identifier, self.title)
+
+    def update_title(self, data):
+        self.title.update_record(**data)
+
+    def update_abstract(self, data):
+        self.abstract.update_record(**data)
 
 
 class ResponsibleOrganisation(models.Model):
