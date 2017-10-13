@@ -118,7 +118,11 @@ class MetaDataSerializer(serializers.ModelSerializer):
     )
     geometryType = serializers.CharField(source='geometry_type')
     topicCategory = TopicSerializer(many=True, default=[])
-    keyword = KeywordSerializer(many=True, default=[])
+    keywords = serializers.PrimaryKeyRelatedField(
+        required=False, many=True, default=[],
+        pk_field=serializers.UUIDField(format='hex_verbose'),
+        queryset=Keyword.objects
+    )
     geographicBoundingBox = BoundingBoxSerializer(source='bounding_box')
     temporalReference = serializers.SerializerMethodField(
         method_name='get_temporal_ref'
@@ -145,7 +149,7 @@ class MetaDataSerializer(serializers.ModelSerializer):
             'resourceAbstract',
             'uniqueResourceIdentifier',
             'topicCategory',
-            'keyword',
+            'keywords',
             'geographicBoundingBox',
             'temporalReference',
             'responsibleOrganisation',
@@ -172,8 +176,10 @@ class MetaDataSerializer(serializers.ModelSerializer):
         print('validated_data {}'.format(validated_data))
         title_data = validated_data.get('title')
         abstract_data = validated_data.get('abstract')
+        keywords_data = validated_data.get('keywords', [])
 
         instance.update_title(title_data)
         instance.update_abstract(abstract_data)
+        instance.update_keywords(keywords_data)
 
         return instance

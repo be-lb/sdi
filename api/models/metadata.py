@@ -179,6 +179,11 @@ class MetaData(models.Model):
     def update_abstract(self, data):
         self.abstract.update_record(**data)
 
+    def update_keywords(self, data):
+        self.keywords.clear()
+        for k in data:
+            self.keywords.add(k)
+
 
 class ResponsibleOrganisation(models.Model):
     organisation = models.ForeignKey(Organisation)
