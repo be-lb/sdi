@@ -43,8 +43,14 @@ class Topic(models.Model):
         return str(self.code)
 
 
-class Keyword(Topic):
-    pass
+class Keyword(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(max_length=124)
+    name = message_field('keyword_name')
+    thesaurus = models.ForeignKey(Thesaurus)
+
+    def __str__(self):
+        return str(self.code)
 
 
 class BoundingBox(models.Model):

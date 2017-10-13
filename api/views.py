@@ -1,4 +1,4 @@
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -12,16 +12,30 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework import generics
 
-from .models import UserMap, MessageRecord, Category, LayerInfo, MetaData
+from .models import (
+    Category,
+    Keyword,
+    LayerInfo,
+    MessageRecord,
+    MetaData,
+    Topic,
+    UserMap,
+)
 from .serializers import (
-    UserMapSerializer, MessageRecordSerializer, CategorySerializer,
-    LayerInfoSerializer, UserSerializer, MetaDataSerializer
+    CategorySerializer,
+    KeywordSerializer,
+    LayerInfoSerializer,
+    MessageRecordSerializer,
+    MetaDataSerializer,
+    TopicSerializer,
+    UserMapSerializer,
+    UserSerializer,
 )
 
 from .serializers.layer import get_serializer, get_model
@@ -79,6 +93,18 @@ class MetaDataViewSet(viewsets.ModelViewSet):
     """
     queryset = MetaData.objects.all()
     serializer_class = MetaDataSerializer
+
+
+class TopicViewSet(viewsets.ReadOnlyModelViewSet):
+
+    queryset = Topic.objects.all()
+    serializer_class = TopicSerializer
+
+
+class KeywordViewSet(viewsets.ReadOnlyModelViewSet):
+
+    queryset = Keyword.objects.all()
+    serializer_class = KeywordSerializer
 
 
 class LayerViewList(generics.ListCreateAPIView):

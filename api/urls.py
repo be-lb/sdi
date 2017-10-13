@@ -1,4 +1,4 @@
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -12,7 +12,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 from django.conf.urls import url, include
 from rest_framework import routers
@@ -25,6 +25,8 @@ router.register(r'messages', views.MessageViewSet)
 router.register(r'categories', views.CategoryViewSet)
 router.register(r'layerinfos', views.LayerInfoViewSet)
 router.register(r'users', views.UserViewSet)
+router.register(r'keywords', views.KeywordViewSet)
+router.register(r'topics', views.TopicViewSet)
 router.register(r'metadatas', views.MetaDataViewSet)
 
 # for u in router.urls:

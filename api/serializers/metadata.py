@@ -25,17 +25,19 @@ from .message import MessageRecordSerializer
 
 
 class TopicSerializer(serializers.ModelSerializer):
+    name = MessageRecordSerializer()
 
     class Meta:
         model = Topic
-        fields = ('code', 'name', 'thesaurus')
+        fields = ('id', 'code', 'name', 'thesaurus')
 
 
 class KeywordSerializer(serializers.ModelSerializer):
+    name = MessageRecordSerializer()
 
     class Meta:
         model = Keyword
-        fields = ('code', 'name', 'thesaurus')
+        fields = ('id', 'code', 'name', 'thesaurus')
 
 
 class BoundingBoxSerializer(serializers.ModelSerializer):
