@@ -13,10 +13,14 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
+from json import loads
+from django.core.serializers import serialize
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
 from rest_framework import viewsets
 from rest_framework import generics
+from rest_framework.renderers import JSONRenderer
 
 from .models import (
     Category,
@@ -39,6 +43,24 @@ from .serializers import (
 )
 
 from .serializers.layer import get_serializer, get_model
+
+
+def login_view(request):
+    if request.method == "POST":
+        # username = request.POST['username']
+        # password = request.POST['password']
+        data = loads(request.body.decode('utf-8'))
+        username = data.get('username')
+        password = data.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            json_data = JSONRenderer().render(UserSerializer(user).data)
+            return HttpResponse(json_data)
+        else:
+            return HttpResponseBadRequest('Authentication Failed')
+
+    return HttpResponseBadRequest('Wrong Verb')
 
 
 class UserViewSet(viewsets.ModelViewSet):

@@ -4,13 +4,187 @@
 <head>
     <meta charset="utf-8">
     <title>sdi - clients</title>
-    </script>
+    <style>
+        .header {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: initial;
+            left: 0;
+            height: 35px;
+        }
+
+        .main {
+            position: absolute;
+            top: 35px;
+            right: 0;
+            bottom: 20px;
+            left: 0;
+        }
+
+        .footer {
+            position: absolute;
+            top: initial;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            height: 20px;
+        }
+
+        body[lang="fr"] .be-name {
+            background-image: url(/client/assets/metadata/58e9e1b2fa2c3638d85ec1fcb64094cb.png);
+        }
+
+        body[lang="nl"] .be-name {
+            background-image: url(/client/assets/metadata/f2cd1e3ab4758825f3d701801d590ce4.png);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: initial;
+            flex-wrap: initial;
+            padding: 0 15px;
+            font-size: 80%;
+        }
+
+        .header .be-logo>div {
+            height: 17px;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+
+        .header .be-logo .be-tree {
+            width: 17px;
+            background-image: url(/client/assets/metadata/16e84b829cc00238906e072c344ff205.png);
+            margin-right: 5px;
+        }
+
+        .header .be-logo .be-name {
+            width: 350px;
+        }
+
+        .header>div {
+            display: flex;
+            align-items: center;
+            justify-content: initial;
+            flex-wrap: initial;
+            height: 35px;
+        }
+
+        .header .app-title {
+            font-weight: 500;
+            font-size: 150%;
+        }
+
+        .header .dashboard-link-wrapper {
+            position: absolute;
+            top: initial;
+            right: 30%;
+            bottom: initial;
+            left: initial;
+        }
+
+        .header .dashboard-link-wrapper .dashboard-link {
+            margin-left: 15px;
+        }
+
+        .header .header-toolbar {
+            position: absolute;
+            top: initial;
+            right: 15px;
+            bottom: initial;
+            left: initial;
+        }
+
+        .header .header-toolbar .login {
+            display: none;
+            cursor: default;
+            padding: 0 15px;
+        }
+
+        .header .header-toolbar .login:hover {
+            color: #8db63c;
+        }
+
+        .header .header-toolbar .login:after {
+            font: normal normal normal 14px/1 FontAwesome;
+            font-size: inherit;
+            text-rendering: auto;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            content: "\F007";
+            margin-left: 5px;
+        }
+
+        .header .header-toolbar .lang-switch {
+            cursor: default;
+        }
+
+        .header .header-toolbar .lang-switch:hover {
+            color: #8db63c;
+        }
+
+        .header .header-toolbar .lang-switch:after {
+            font: normal normal normal 14px/1 FontAwesome;
+            font-size: inherit;
+            text-rendering: auto;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            content: "\F0AC";
+            margin-left: 5px;
+        }
+
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: initial;
+            padding: 4px 15px;
+            font-size: 70%;
+            background: #fff;
+        }
+
+        .main {
+            display: flex;
+        }
+
+        .app {
+            width: 200px;
+            height: 200px;
+            border: 1px solid white;
+        }
+
+        .app:hover {
+            border: 1px solid #8db63c;
+        }
+    </style>
 </head>
 
-<body>
-    {% for client in clients %}
-    <h1><a href="/client/{{ client }}">{{ client }}</a></h1>
-    {% endfor %}
+<body lang="fr">
+    <div class="header">
+        <div class="be-logo">
+            <div class="be-tree"></div>
+            <div class="be-name"></div>
+        </div>
+        <div class="header-toolbar">
+            <span class="lang-switch-label">NL</span>
+        </div>
+    </div>
+
+    <div class="main">
+        {% for name, icon in clients %}
+        <div class="app">
+            <a href="/client/{{ name }}" title="{{ name }}">{{ icon|safe }}</a>
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <div class="footer">
+        <div>Spatial Data Infrastructure © atelier cartographique</div>
+    </div>
 </body>
 
 </html>

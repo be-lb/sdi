@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^layers/(?P<schema>.+)/(?P<table>.+)/$',
         views.LayerViewList.as_view(), name='layers_list'),
+    url(r'^auth/login', views.login_view, name='api.login'),
     # url(r'^auth/', include('rest_framework.urls',
-    # namespace='rest_framework'))
+    #                        namespace='rest_framework'))
 ]

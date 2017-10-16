@@ -28,8 +28,8 @@ def layer(request, schema, table):
     model, gf, gft = get_layer(schema, table)
     items = model.objects.using(schema).all()
     print(len(items))
-    json = serialize('geojson', items, geometry_field=gf)
-    return HttpResponse(json)
+    json_data = serialize('geojson', items, geometry_field=gf)
+    return HttpResponse(json_data)
 
 
 def dictfetchall(cursor):

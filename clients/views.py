@@ -1,5 +1,5 @@
 
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 import mimetypes
 import os
@@ -22,6 +22,7 @@ import stat
 from collections import namedtuple
 
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.conf import settings
 from django.http import (
     FileResponse, Http404, HttpResponse,
@@ -34,30 +35,32 @@ from django.views import static
 from django.utils._os import safe_join
 
 
-Bundle = namedtuple('Bundle', ['mtime', 'data'])
+Resource = namedtuple('Resource', ['mtime', 'data'])
+Client = namedtuple('Client', ['name', 'icon'])
 BUNDLE_CACHE = dict()
+ICON_CACHE = dict()
 
 
-def update_bundle(fullpath, mtime):
+def update_resource(fullpath, mtime, cache):
     with open(fullpath, 'rb') as f:
         data = f.read()
-        BUNDLE_CACHE[fullpath] = Bundle(mtime, data)
-        print('******************************\nBundle update [{}] [{}] '.format(
+        cache[fullpath] = Resource(mtime, data)
+        print('******************************\nResource Update [{}] [{}] '.format(
             fullpath,
             mtime,
         ))
 
 
-def get_bundle(fullpath):
+def get_resource(fullpath, cache):
     statobj = os.stat(fullpath)
     mtime = statobj.st_mtime
-    if fullpath in BUNDLE_CACHE:
-        if mtime != BUNDLE_CACHE[fullpath]:
-            update_bundle(fullpath, mtime)
+    if fullpath in cache:
+        if mtime != cache[fullpath]:
+            update_resource(fullpath, mtime, cache)
     else:
-        update_bundle(fullpath, mtime)
+        update_resource(fullpath, mtime, cache)
 
-    return BUNDLE_CACHE[fullpath].data
+    return cache[fullpath].data
 
 
 def render_index(request, app_name, path):
@@ -79,7 +82,7 @@ def render_bundle(request, path, fullpath):
 
     return render(request, 'clients/bundle.js', context=dict(
         path=path,
-        bundle=get_bundle(fullpath),
+        bundle=get_resource(fullpath, BUNDLE_CACHE),
         user_id=request.user.id,
         api=reverse('api-root'),
         csrf_token=get_token(request),
@@ -135,6 +138,18 @@ def style(request, app_name, path):
 
 
 def index(request):
-    return render(request, 'clients/index.html', context=dict(
-                  clients=settings.CLIENTS
-                  ))
+    clients = []
+    for name, client_root in settings.CLIENTS.items():
+        icon_path = safe_join(client_root, 'icon.svg')
+        icon = None
+        try:
+            icon = get_resource(icon_path, ICON_CACHE)
+        except Exception:
+            icon = render_to_string(
+                'clients/icon.svg', {'name': name}, request)
+        print('Icon type {}'.format(type(icon)))
+        clients.append(
+            Client(name, icon))
+
+    return render(request, 'clients/index.html',
+                  context=dict(clients=clients))
