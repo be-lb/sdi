@@ -90,7 +90,8 @@ class Command(BaseCommand):
                             self.stderr.write(
                                 self.style.ERROR(
                                     'Failed to create metadata for {}: {}'.format(table_name, e)))
-                    except Exception as e:
-                        self.stderr.write(
-                            self.style.ERROR(
-                                'Failed On {}: {}'.format(table_name, e)))
+
+                except Exception as e:
+                    self.stderr.write(
+                        self.style.ERROR(
+                            'Failed On {}: {}'.format(table_name, e)))
