@@ -1,4 +1,3 @@
-
 #
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
@@ -60,8 +59,8 @@ class BoundingBox(models.Model):
     south = models.FloatField(default=0)
 
     def __str__(self):
-        return '{}, {}, {}, {}'.format(
-            self.west, self.south, self.east, self.north)
+        return '{}, {}, {}, {}'.format(self.west, self.south, self.east,
+                                       self.north)
 
 
 class Organisation(models.Model):
@@ -77,8 +76,7 @@ class PointOfContact(models.Model):
     user = models.ForeignKey(User)
     organisation = models.ForeignKey(
         Organisation,
-        related_name='point_of_contact',
-    )
+        related_name='point_of_contact', )
 
     def __str__(self):
         return '{} @ {}'.format(self.user.get_username(), self.organisation)
@@ -93,7 +91,6 @@ class Role(models.Model):
 
 
 class MetaDataManager(models.Manager):
-
     def create_draft(self, table_name, geometry_type, user):
         poc = user.pointofcontact_set.first()
         org = poc.organisation
@@ -111,15 +108,13 @@ class MetaDataManager(models.Manager):
             abstract=abstract_rec,
             resource_identifier=table_name,
             bounding_box=bb,
-            geometry_type=geometry_type,
-        )
+            geometry_type=geometry_type, )
 
         md.point_of_contact.add(poc)
         ResponsibleOrganisation.objects.create(
             organisation=org,
             md=md,
-            role=role,
-        )
+            role=role, )
 
         return md
 
@@ -138,8 +133,7 @@ class MetaData(models.Model):
         (POLYGON, POLYGON),
         (MULTIPOINT, MULTIPOINT),
         (MULTILINESTRING, MULTILINESTRING),
-        (MULTIPOLYGON, MULTIPOLYGON),
-    )
+        (MULTIPOLYGON, MULTIPOLYGON), )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = message_field('md_title')
@@ -160,13 +154,11 @@ class MetaData(models.Model):
         Organisation,
         through='ResponsibleOrganisation',
         through_fields=('md', 'organisation'),
-        related_name='md_responsible_org',
-    )
+        related_name='md_responsible_org', )
 
     point_of_contact = models.ManyToManyField(
         PointOfContact,
-        related_name='md_point_of_contact',
-    )
+        related_name='md_point_of_contact', )
 
     objects = MetaDataManager()
 
@@ -183,6 +175,9 @@ class MetaData(models.Model):
         self.keywords.clear()
         for k in data:
             self.keywords.add(k)
+
+    def update_publication_state(self, data):
+        self.published = data
 
 
 class ResponsibleOrganisation(models.Model):

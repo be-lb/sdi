@@ -1,4 +1,3 @@
-
 #########################################################################
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
@@ -33,8 +32,7 @@ class Category(models.Model):
     name = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
-        related_name='category_name',
-    )
+        related_name='category_name', )
 
     def __str__(self):
         return str(self.name)
@@ -45,15 +43,14 @@ class LayerInfo(models.Model):
     metadata = models.ForeignKey(
         MetaData,
         on_delete=models.PROTECT,
-        related_name='layer_info_md',
-    )
+        related_name='layer_info_md', )
     visible = models.BooleanField()
     style = JSONField()
     feature_view_options = JSONField()
 
     def update(self, data):
         self.metadata = data.pop('metadata')
-                                 # DRF gives us a plain MetaData Model, weird
+        # DRF gives us a plain MetaData Model, weird
         self.visible = data.pop('visible')
         self.style = data.pop('style')
         self.feature_view_options = data.pop('feature_view_options')
@@ -68,15 +65,13 @@ class BaseLayer(models.Model):
     name = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
-        related_name='base_layer_name',
-    )
+        related_name='base_layer_name', )
     srs = models.TextField()
     params = JSONField()
     url = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
-        related_name='base_layer_url',
-    )
+        related_name='base_layer_url', )
 
     def __str__(self):
         return str(self.name)
@@ -88,25 +83,24 @@ def get_default_base_layer():
         default_base_dict = settings.DEFAULT_BASE_LAYER
         name = message(**default_base_dict['name'])
         url = message(**default_base_dict['url'])
+        srs = default_base_dict['srs']
+        params = default_base_dict['params']
         return BaseLayer.objects.create(
             name=name,
-            srs=default_base_dict['srs'],
-            params=default_base_dict['params'],
-            url=url,
-        )
+            srs=srs,
+            params=params,
+            url=url, )
     return base
 
 
 class UserMapManager(models.Manager):
-
     def create_map(self, user, title_data, description_data, image_url=None):
         instance = UserMap(
             user=user,
             title=message(**title_data),
             description=message(**description_data),
             image_url=image_url,
-            base_layer=get_default_base_layer(),
-        )
+            base_layer=get_default_base_layer(), )
         instance.save()
         return instance
 
@@ -119,38 +113,27 @@ class UserMap(models.Model):
         on_delete=models.PROTECT,
         related_name='maps',
         default=0,
-        editable=False,
-    )
+        editable=False, )
     title = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
         related_name='map_title',
         null=True,
-        blank=True,
-    )
+        blank=True, )
     description = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
-        related_name='map_description',
-    )
+        related_name='map_description', )
     image_url = models.URLField(
         null=True,
-        blank=True,
-    )
-    categories = models.ManyToManyField(
-        Category,
-        through='CategoryLink'
-    )
-    layers = models.ManyToManyField(
-        LayerInfo,
-        through='LayerLink'
-    )
+        blank=True, )
+    categories = models.ManyToManyField(Category, through='CategoryLink')
+    layers = models.ManyToManyField(LayerInfo, through='LayerLink')
     base_layer = models.ForeignKey(
         BaseLayer,
         on_delete=models.PROTECT,
         null=True,
-        blank=True,
-    )
+        blank=True, )
 
     objects = UserMapManager()
 
@@ -170,8 +153,7 @@ class UserMap(models.Model):
             # cat = Category.objects.get(id=cat_id)
             CategoryLink.objects.create(
                 category=cat,
-                user_map=self,
-            )
+                user_map=self, )
 
     def update_layers(self, layers=[]):
         self.layers.clear()
@@ -183,8 +165,7 @@ class UserMap(models.Model):
                 LayerLink.objects.create(
                     layer=layer,
                     user_map=self,
-                    sort_index=idx,
-                )
+                    sort_index=idx, )
             except Exception as e:
                 print('Failed to Link Layer {}'.format(e))
                 print('{}'.format(layer_data))
@@ -198,18 +179,15 @@ class Attachment(models.Model):
     name = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
-        related_name='attachment_name',
-    )
+        related_name='attachment_name', )
     url = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
-        related_name='attachment_url',
-    )
+        related_name='attachment_url', )
     user_map = models.ForeignKey(
         UserMap,
         on_delete=models.CASCADE,
-        related_name='attachment_user_map',
-    )
+        related_name='attachment_user_map', )
 
     def __str__(self):
         return str(self.name)
@@ -219,13 +197,11 @@ class LayerLink(models.Model):
     layer = models.ForeignKey(
         LayerInfo,
         on_delete=models.CASCADE,
-        related_name='user_map_layer',
-    )
+        related_name='user_map_layer', )
     user_map = models.ForeignKey(
         UserMap,
         on_delete=models.CASCADE,
-        related_name='layer_user_map',
-    )
+        related_name='layer_user_map', )
     sort_index = models.IntegerField()
 
 
@@ -233,10 +209,8 @@ class CategoryLink(models.Model):
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
-        related_name='user_map_category',
-    )
+        related_name='user_map_category', )
     user_map = models.ForeignKey(
         UserMap,
         on_delete=models.CASCADE,
-        related_name='category_user_map',
-    )
+        related_name='category_user_map', )
