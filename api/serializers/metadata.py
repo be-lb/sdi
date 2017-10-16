@@ -38,6 +38,7 @@ class KeywordSerializer(serializers.ModelSerializer):
 
 
 class BoundingBoxSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = BoundingBox
         fields = ('west', 'north', 'east', 'south')
@@ -101,7 +102,13 @@ class MetaDataSerializer(serializers.ModelSerializer):
     uniqueResourceIdentifier = serializers.CharField(
         source='resource_identifier', )
     geometryType = serializers.CharField(source='geometry_type')
-    topicCategory = TopicSerializer(many=True, default=[])
+    topicCategory = serializers.PrimaryKeyRelatedField(
+        source='topics',
+        required=False,
+        many=True,
+        default=[],
+        pk_field=serializers.UUIDField(format='hex_verbose'),
+        queryset=Topic.objects)
     keywords = serializers.PrimaryKeyRelatedField(
         required=False,
         many=True,
@@ -157,11 +164,13 @@ class MetaDataSerializer(serializers.ModelSerializer):
         title_data = validated_data.get('title')
         abstract_data = validated_data.get('abstract')
         keywords_data = validated_data.get('keywords', [])
+        topics_data = validated_data.get('topics', [])
         published_data = validated_data.get('published', False)
 
         instance.update_title(title_data)
         instance.update_abstract(abstract_data)
         instance.update_keywords(keywords_data)
+        instance.update_topics(topics_data)
         instance.update_publication_state(published_data)
 
         return instance

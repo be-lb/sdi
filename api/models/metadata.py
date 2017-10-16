@@ -91,6 +91,7 @@ class Role(models.Model):
 
 
 class MetaDataManager(models.Manager):
+
     def create_draft(self, table_name, geometry_type, user):
         poc = user.pointofcontact_set.first()
         org = poc.organisation
@@ -175,6 +176,11 @@ class MetaData(models.Model):
         self.keywords.clear()
         for k in data:
             self.keywords.add(k)
+
+    def update_topics(self, data):
+        self.topics.clear()
+        for k in data:
+            self.topics.add(k)
 
     def update_publication_state(self, data):
         self.published = data
