@@ -1,4 +1,4 @@
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -12,7 +12,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connections
@@ -69,22 +69,28 @@ class Command(BaseCommand):
             WHERE f_table_schema = %s
             ''', [schema])
             for r in cursor.fetchall():
-                table_name = '{}/{}'.format(schema, r[0])
-                geometry_type = GEOMETRY[r[1]]
                 try:
-                    md = MetaData.objects.get(resource_identifier=table_name)
-                    self.stdout.write(
-                        '{} already in catalog => {}'.format(
-                            table_name, md.id))
-                except MetaData.DoesNotExist:
+                    table_name = '{}/{}'.format(schema, r[0])
+                    geometry_type = GEOMETRY[r[1]]
                     try:
-                        md = MetaData.objects.create_draft(
-                            table_name, geometry_type, user)
+                        md = MetaData.objects.get(
+                            resource_identifier=table_name)
                         self.stdout.write(
-                            self.style.SUCCESS(
-                                'Create {} {} {}'.format(
-                                    table_name, geometry_type, md.id)))
+                            '{} already in catalog => {}'.format(
+                                table_name, md.id))
+                    except MetaData.DoesNotExist:
+                        try:
+                            md = MetaData.objects.create_draft(
+                                table_name, geometry_type, user)
+                            self.stdout.write(
+                                self.style.SUCCESS(
+                                    'Create {} {} {}'.format(
+                                        table_name, geometry_type, md.id)))
+                        except Exception as e:
+                            self.stderr.write(
+                                self.style.ERROR(
+                                    'Failed to create metadata for {}: {}'.format(table_name, e)))
                     except Exception as e:
                         self.stderr.write(
                             self.style.ERROR(
-                                'Failed to create metadata for {}: {}'.format(table_name, e)))
+                                'Failed On {}: {}'.format(table_name, e)))
