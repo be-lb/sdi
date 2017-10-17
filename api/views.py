@@ -15,9 +15,10 @@
 #
 from json import loads
 from django.core.serializers import serialize
-from django.http import HttpResponse, HttpResponseBadRequest
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.urls import reverse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth import authenticate, login, logout
 from rest_framework import viewsets
 from rest_framework import generics
 from rest_framework.renderers import JSONRenderer
@@ -29,8 +30,7 @@ from .models import (
     MessageRecord,
     MetaData,
     Topic,
-    UserMap,
-)
+    UserMap, )
 from .serializers import (
     CategorySerializer,
     KeywordSerializer,
@@ -39,23 +39,27 @@ from .serializers import (
     MetaDataSerializer,
     TopicSerializer,
     UserMapSerializer,
-    UserSerializer,
-)
+    UserSerializer, )
 
 from .serializers.layer import get_serializer, get_model
 
 
 def login_view(request):
     if request.method == "POST":
-        # username = request.POST['username']
-        # password = request.POST['password']
         data = loads(request.body.decode('utf-8'))
         username = data.get('username')
         password = data.get('password')
+        # next = data.get('next', None)
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
             json_data = JSONRenderer().render(UserSerializer(user).data)
+            # if next:
+            #     next_comps = next.split('/')
+            #     next_app = next_comps[0]
+            #     next_path = '/'.join(next_comps[1:])
+            #     next_url = reverse('clients.root', args=(next_app, next_path))
+            #     return HttpResponseRedirect(next_url)
             return HttpResponse(json_data)
         else:
             return HttpResponseBadRequest('Authentication Failed')
@@ -63,8 +67,14 @@ def login_view(request):
     return HttpResponseBadRequest('Wrong Verb')
 
 
-class UserViewSet(viewsets.ModelViewSet):
+def logout_view(request):
+    if request.method == "POST":
+        logout(request)
+        return HttpResponse(JSONRenderer().render('logout'))
+    return HttpResponseBadRequest('Wrong Verb')
 
+
+class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -73,7 +83,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class UserMapViewSet(viewsets.ModelViewSet):
-
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -82,7 +91,6 @@ class UserMapViewSet(viewsets.ModelViewSet):
 
 
 class MessageViewSet(viewsets.ModelViewSet):
-
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -91,7 +99,6 @@ class MessageViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -100,7 +107,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class LayerInfoViewSet(viewsets.ModelViewSet):
-
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -109,7 +115,6 @@ class LayerInfoViewSet(viewsets.ModelViewSet):
 
 
 class MetaDataViewSet(viewsets.ModelViewSet):
-
     """
     API endpoint that allows MetaData to be viewed or edited.
     """
@@ -130,7 +135,6 @@ class KeywordViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class LayerViewList(generics.ListCreateAPIView):
-
     def get_queryset(self):
         schema = self.kwargs.get('schema')
         table = self.kwargs.get('table')

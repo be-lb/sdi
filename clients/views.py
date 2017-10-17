@@ -1,4 +1,3 @@
-
 #
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
@@ -25,15 +24,15 @@ from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.http import (
-    FileResponse, Http404, HttpResponse,
-)
+    FileResponse,
+    Http404,
+    HttpResponse, )
 from django.urls import reverse
 from django.middleware.csrf import get_token
 
 from django.utils.six.moves.urllib.parse import unquote
 from django.views import static
 from django.utils._os import safe_join
-
 
 Resource = namedtuple('Resource', ['mtime', 'data'])
 Client = namedtuple('Client', ['name', 'icon'])
@@ -45,10 +44,10 @@ def update_resource(fullpath, mtime, cache):
     with open(fullpath, 'rb') as f:
         data = f.read()
         cache[fullpath] = Resource(mtime, data)
-        print('******************************\nResource Update [{}] [{}] '.format(
-            fullpath,
-            mtime,
-        ))
+        print('******************************\nResource Update [{}] [{}] '.
+              format(
+                  fullpath,
+                  mtime, ))
 
 
 def get_resource(fullpath, cache):
@@ -68,11 +67,15 @@ def render_index(request, app_name, path):
     if request.user.is_authenticated():
         user_id = request.user.id
 
-    return render(request, 'clients/app_index.html', context=dict(
-        app_name=app_name,
-        bundle_url=reverse('clients.bundle', args=(app_name, path)),
-        style_url=reverse('clients.assets', args=(app_name, 'style.css')),
-    ))
+    return render(
+        request,
+        'clients/app_index.html',
+        context=dict(
+            app_name=app_name,
+            bundle_url=reverse(
+                'clients.bundle', args=(app_name, path)),
+            style_url=reverse(
+                'clients.assets', args=(app_name, 'style.css')), ))
 
 
 def render_bundle(request, path, fullpath):
@@ -80,13 +83,16 @@ def render_bundle(request, path, fullpath):
     if request.user.is_authenticated():
         user_id = request.user.id
 
-    return render(request, 'clients/bundle.js', context=dict(
-        path=path,
-        bundle=get_resource(fullpath, BUNDLE_CACHE),
-        user_id=request.user.id,
-        api=reverse('api-root'),
-        csrf_token=get_token(request),
-    ))
+    return render(
+        request,
+        'clients/bundle.js',
+        context=dict(
+            root=reverse('clients.index'),
+            path=path,
+            bundle=get_resource(fullpath, BUNDLE_CACHE),
+            user_id=user_id,
+            api=reverse('api-root'),
+            csrf_token=get_token(request), ))
 
 
 def serve_static(fullpath):
@@ -145,11 +151,9 @@ def index(request):
         try:
             icon = get_resource(icon_path, ICON_CACHE)
         except Exception:
-            icon = render_to_string(
-                'clients/icon.svg', {'name': name}, request)
-        print('Icon type {}'.format(type(icon)))
-        clients.append(
-            Client(name, icon))
+            icon = render_to_string('clients/icon.svg', {'name': name},
+                                    request)
 
-    return render(request, 'clients/index.html',
-                  context=dict(clients=clients))
+        clients.append(Client(name, icon))
+
+    return render(request, 'clients/index.html', context=dict(clients=clients))
