@@ -26,6 +26,8 @@ from functools import partial
 from django.core.management.base import BaseCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models.constants import LOOKUP_SEP
+from django.db.backends.base.introspection import FieldInfo
+from django.utils.encoding import force_text
 
 requires_system_checks = False
 
@@ -34,6 +36,27 @@ def get_manager(schema):
     m = models.Manager().db_manager(schema)
     # print('Created Manager On DB: {} {}'.format(schema, m.uuid))
     return m
+
+
+# the one from django hurts on materialized views
+def get_table_description(connection, cursor, table_name):
+    "Returns a description of the table, with the DB-API cursor.description interface."
+        # As cursor.description does not return reliably the nullable property,
+        # we have to query the information_schema (#7783)
+        # cursor.execute("""
+        #     SELECT column_name, is_nullable, column_default
+        #     FROM information_schema.columns
+        #     WHERE table_name = %s""", [table_name])
+        # field_map = {line[0]: line[1:] for line in cursor.fetchall()}
+    cursor.execute("SELECT * FROM %s LIMIT 1" %
+                   connection.ops.quote_name(table_name))
+    return [
+        FieldInfo(*(
+            (force_text(line[0]),) +
+            line[1:6] +
+            (False, None)
+        )) for line in cursor.description
+    ]
 
 
 def inspect_table(schema, table_name):
@@ -66,8 +89,11 @@ def inspect_table(schema, table_name):
                 c['columns'][0] for c in constraints.values()
                 if c['unique'] and len(c['columns']) == 1
             ]
-            table_description = connection.introspection.get_table_description(
-                cursor, table_name)
+            # table_description =
+            # connection.introspection.get_table_description( cursor,
+            # table_name)
+            table_description = get_table_description(
+                connection, cursor, table_name)
         except Exception as e:
             # yield "# Unable to inspect table '%s'" % table_name
             # yield "# The error was: %s" % e

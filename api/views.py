@@ -75,6 +75,7 @@ def logout_view(request):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -83,6 +84,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class UserMapViewSet(viewsets.ModelViewSet):
+
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -91,6 +93,7 @@ class UserMapViewSet(viewsets.ModelViewSet):
 
 
 class MessageViewSet(viewsets.ModelViewSet):
+
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -99,6 +102,7 @@ class MessageViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
+
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -107,6 +111,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class LayerInfoViewSet(viewsets.ModelViewSet):
+
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -115,6 +120,7 @@ class LayerInfoViewSet(viewsets.ModelViewSet):
 
 
 class MetaDataViewSet(viewsets.ModelViewSet):
+
     """
     API endpoint that allows MetaData to be viewed or edited.
     """
@@ -135,12 +141,13 @@ class KeywordViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class LayerViewList(generics.ListCreateAPIView):
+
     def get_queryset(self):
         schema = self.kwargs.get('schema')
         table = self.kwargs.get('table')
         model = get_model(schema, table)
 
-        return model.objects.using(schema).all()
+        return model.objects.all()
 
     def get_serializer_class(self):
         schema = self.kwargs.get('schema')
