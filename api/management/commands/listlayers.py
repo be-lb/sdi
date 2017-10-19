@@ -39,8 +39,8 @@ class Command(BaseCommand):
         schemas = options['schema']
         for schema in schemas:
             conn = connections[schema]
-            self.stdout.write(
-                self.style.SUCCESS('Connected to {}'.format(schema)))
+            # self.stdout.write(
+            #     self.style.SUCCESS('Connected to {}'.format(schema)))
             with conn.cursor() as cursor:
                 cursor.execute('SELECT * FROM "public"."geometry_columns";')
                 for r in dictfetchall(cursor):
@@ -65,4 +65,4 @@ class Command(BaseCommand):
                             self.stdout.write(self.style.ERROR(err_msg))
                             continue
 
-                        self.stdout.write(self.style.SQL_TABLE(r_table))
+                        self.stdout.write(self.style.SQL_TABLE('{}.{}'.format(r_schema, r_table)))
