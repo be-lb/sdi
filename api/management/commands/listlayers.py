@@ -16,7 +16,7 @@
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connections
-from layers.models import get_layer
+from layers.models import get_layer, NoPKError
 
 
 def dictfetchall(cursor):
