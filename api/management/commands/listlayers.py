@@ -51,6 +51,11 @@ class Command(BaseCommand):
                         try:
                             model, geometry_field, geometry_field_type = get_layer(
                                 r_schema, r_table)
+                        except NoPKError:
+                            err_msg = 'NoPrimaryKeyError on {}.{}'.format(
+                                r_schema, r_table)
+                            self.stdout.write(self.style.ERROR(err_msg))
+                            continue
                         except Exception as e:
                             err_msg = 'ERROR\nget_layer({}, {}) \n{}'.format(
                                 r_schema, r_table, e)

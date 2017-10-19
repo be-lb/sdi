@@ -32,6 +32,10 @@ from django.utils.encoding import force_text
 requires_system_checks = False
 
 
+class NoPKError(Exception):
+    pass
+
+
 def get_manager(schema):
     m = models.Manager().db_manager(schema)
     # print('Created Manager On DB: {} {}'.format(schema, m.uuid))
@@ -89,6 +93,10 @@ def inspect_table(schema, table_name):
                 c['columns'][0] for c in constraints.values()
                 if c['unique'] and len(c['columns']) == 1
             ]
+
+            if None == primary_key_column:
+                raise NoPKError()
+
             # table_description =
             # connection.introspection.get_table_description( cursor,
             # table_name)
