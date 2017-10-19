@@ -94,9 +94,6 @@ def inspect_table(schema, table_name):
                 if c['unique'] and len(c['columns']) == 1
             ]
 
-            if None == primary_key_column:
-                raise NoPKError()
-
             # table_description =
             # connection.introspection.get_table_description( cursor,
             # table_name)
@@ -197,6 +194,9 @@ def inspect_table(schema, table_name):
                 F = getattr(django_models.fields, field_type)
 
             model_fields[att_name] = F(**extra_params)
+
+        if None == primary_key_column and not 'id' in used_column_names:
+            raise NoPKError()
 
         meta_class = get_meta(table_name, constraints, column_to_field_name)
         model_fields.update(
