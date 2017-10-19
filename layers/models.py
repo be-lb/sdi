@@ -118,7 +118,7 @@ def inspect_table(schema, table_name):
                     connection, table_name, row)
                 extra_params.update(field_params)
 
-            print('>> {}: {}'.format(att_name, field_type))
+            # print('>> {}: {}'.format(att_name, field_type))
 
             if (not geometry_field) and is_geometry:
                 geometry_field = att_name

@@ -1,4 +1,4 @@
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -12,10 +12,11 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connections
+from layers.models import get_layer
 
 
 def dictfetchall(cursor):
@@ -46,4 +47,22 @@ class Command(BaseCommand):
                     r_schema = r['f_table_schema']
                     r_table = r['f_table_name']
                     if r_schema == schema:
+                        # self.stdout.write(self.style.SQL_TABLE(r_table))
+                        try:
+                            model, geometry_field, geometry_field_type = get_layer(
+                                r_schema, r_table)
+                        except Exception as e:
+                            err_msg = 'ERROR\nget_layer({}, {}) \n{}'.format(
+                                r_schema, r_table, e)
+                            self.stdout.write(self.style.ERROR(err_msg))
+                            continue
+
+                        try:
+                            model.objects.first()
+                        except Exception as e:
+                            err_msg = 'ERROR\nfirst({}, {}) \n{}'.format(
+                                r_schema, r_table, e)
+                            self.stdout.write(self.style.ERROR(err_msg))
+                            continue
+
                         self.stdout.write(self.style.SQL_TABLE(r_table))
