@@ -1,4 +1,4 @@
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -12,7 +12,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 import uuid
 from datetime import datetime
@@ -93,6 +93,7 @@ def get_default_base_layer():
 
 
 class UserMapManager(models.Manager):
+
     def create_map(self, user, title_data, description_data, image_url=None):
         instance = UserMap(
             user=user,
@@ -106,7 +107,7 @@ class UserMapManager(models.Manager):
 
 class UserMap(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    last_modified = models.DateTimeField(default=datetime.now, editable=False)
+    last_modified = models.DateTimeField(auto_now=True, editable=False)
     user = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
