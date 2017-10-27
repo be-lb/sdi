@@ -1,4 +1,4 @@
-#########################################################################
+#
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -12,15 +12,15 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#########################################################################
+#
 
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 
 
 class MessageRecord(models.Model):
-    fr = models.TextField()
-    nl = models.TextField()
+    fr = models.TextField(blank=True)
+    nl = models.TextField(blank=True)
     parameters = JSONField(null=True, blank=True)
 
     def __str__(self):
