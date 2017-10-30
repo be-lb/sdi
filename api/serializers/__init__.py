@@ -20,6 +20,7 @@ from .map import (
     UserMapSerializer,
     CategorySerializer,
     LayerInfoSerializer,
+    AttachmentSerializer,
 )
 from .user import UserSerializer
 

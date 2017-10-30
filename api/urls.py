@@ -28,6 +28,7 @@ router.register(r'users', views.UserViewSet)
 router.register(r'keywords', views.KeywordViewSet)
 router.register(r'topics', views.TopicViewSet)
 router.register(r'metadatas', views.MetaDataViewSet)
+router.register(r'attachments', views.AttachmentViewSet)
 
 # for u in router.urls:
 #     print(u)

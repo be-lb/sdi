@@ -26,6 +26,7 @@ from ..models import (
     MessageRecord,
     MetaData,
     UserMap,
+    Attachment,
 )
 from .message import MessageRecordSerializer
 from collections import OrderedDict
@@ -45,6 +46,35 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ('id', 'name')
+
+
+class AttachmentSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+    name = MessageRecordSerializer()
+    url = MessageRecordSerializer()
+    mapId = serializers.PrimaryKeyRelatedField(
+        many=False, source='user_map',
+        pk_field=serializers.UUIDField(format='hex_verbose'),
+        queryset=UserMap.objects
+    )
+
+    class Meta:
+        model = Attachment
+        fields = ('id', 'name', 'url', 'mapId')
+
+    def update(self, instance, validated_data):
+        instance.update(validated_data)
+        return instance
+
+    def create(self, validated_data):
+        name_data = validated_data.pop('name')
+        url_data = validated_data.pop('url')
+        user_map = validated_data.pop('user_map')
+        return Attachment.objects.create_attachment(
+            name_data,
+            url_data,
+            user_map,
+        )
 
 
 class BaseLayerSerializer(serializers.ModelSerializer):
@@ -72,11 +102,6 @@ class LayerInfoSerializer(serializers.ModelSerializer):
         fields = ('id', 'metadataId', 'visible', 'style', 'featureViewOptions')
 
 
-class AttachmentSerializer(serializers.Serializer):
-    name = MessageRecordSerializer()
-    url = MessageRecordSerializer()
-
-
 class UserMapSerializer(NonNullModelSerializer):
     id = serializers.UUIDField(read_only=True)
     url = serializers.SerializerMethodField(read_only=True)
@@ -91,10 +116,6 @@ class UserMapSerializer(NonNullModelSerializer):
         required=False,
         max_length=1024,
     )
-    # imageUrl = serializers.SerializerMethodField(
-    #     method_name='get_image_url',
-    #     required=False,
-    # )
 
     categories = serializers.PrimaryKeyRelatedField(
         required=False, many=True,
@@ -102,7 +123,17 @@ class UserMapSerializer(NonNullModelSerializer):
         queryset=Category.objects
     )
 
-    attachments = AttachmentSerializer(many=True, default=[])
+    attachments = serializers.PrimaryKeyRelatedField(
+        required=False, many=True,
+        source='attachment_user_map',
+        pk_field=serializers.UUIDField(format='hex_verbose'),
+        queryset=Attachment.objects
+    )
+
+    # attachments = serializers.SerializerMethodField(
+    #     read_only=True,
+    #     source='attachment_user_map')
+
     layers = LayerInfoSerializer(many=True, default=[])
 
     def get_lastModified(self, instance):
@@ -111,6 +142,9 @@ class UserMapSerializer(NonNullModelSerializer):
 
     def get_url(self, instance):
         return reverse('usermap-detail', args=[instance.id])
+
+    # def get_attachments(self, instance):
+    # return [formatAttachment(i) for i in instance.attachment_user_map.all()]
 
     # def get_image_url(sel, instance):
     #     url = instance.image_url

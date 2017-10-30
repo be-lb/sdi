@@ -19,8 +19,10 @@ import os
 import posixpath
 import stat
 from collections import namedtuple
+import json
 
 from django.shortcuts import render
+from django.urls import reverse
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.http import (
@@ -38,6 +40,26 @@ Resource = namedtuple('Resource', ['mtime', 'data'])
 Client = namedtuple('Client', ['name', 'icon'])
 BUNDLE_CACHE = dict()
 ICON_CACHE = dict()
+
+configured_clients = dict()
+for url, client_root in settings.CLIENTS.items():
+    manifest_path = safe_join(client_root, 'manifest.json')
+    with open(manifest_path) as f:
+        manifest = json.load(f)
+        configured_clients[url] = {
+            'name': manifest['name'],
+            'root': safe_join(client_root, manifest['root'])
+        }
+
+
+def export_manifest():
+    result = []
+    for codename, manifest in configured_clients.items():
+        url = reverse('clients.root', args=(codename, ''))
+        name = manifest['name']
+        result.append(dict(url=url, name=name))
+
+    return result
 
 
 def update_resource(fullpath, mtime, cache):
@@ -89,6 +111,7 @@ def render_bundle(request, path, fullpath):
         context=dict(
             root=reverse('clients.index'),
             path=path,
+            apps=export_manifest(),
             bundle=get_resource(fullpath, BUNDLE_CACHE),
             user_id=user_id,
             api=reverse('api-root'),
@@ -116,7 +139,7 @@ def serve_static(fullpath):
 
 
 def app_index(request, app_name, path):
-    if app_name not in settings.CLIENTS:
+    if app_name not in configured_clients:
         raise Http404('{} not configured'.format(app_name))
     normalized_path = unquote(path).lstrip('/')
     if not normalized_path:
@@ -125,18 +148,18 @@ def app_index(request, app_name, path):
 
 
 def app(request, app_name, path):
-    if app_name not in settings.CLIENTS:
+    if app_name not in configured_clients:
         raise Http404('{} not configured'.format(app_name))
-    client_root = settings.CLIENTS[app_name]
+    client_root = configured_clients[app_name]['root']
     fullpath = safe_join(client_root, 'bundle.js')
 
     return render_bundle(request, path, fullpath)
 
 
 def style(request, app_name, path):
-    if app_name not in settings.CLIENTS:
+    if app_name not in configured_clients:
         raise Http404('{} not configured'.format(app_name))
-    client_root = settings.CLIENTS[app_name]
+    client_root = configured_clients[app_name]['root']
     normalized_path = unquote(path).lstrip('/')
     fullpath = safe_join(client_root, normalized_path)
 
@@ -144,6 +167,9 @@ def style(request, app_name, path):
 
 
 def index(request):
+    if 'default' in configured_clients:
+        return app_index(request, 'default', '')
+
     clients = []
     for name, client_root in settings.CLIENTS.items():
         icon_path = safe_join(client_root, 'icon.svg')

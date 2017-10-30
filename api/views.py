@@ -30,7 +30,9 @@ from .models import (
     MessageRecord,
     MetaData,
     Topic,
-    UserMap, )
+    UserMap,
+    Attachment,
+)
 from .serializers import (
     CategorySerializer,
     KeywordSerializer,
@@ -39,7 +41,9 @@ from .serializers import (
     MetaDataSerializer,
     TopicSerializer,
     UserMapSerializer,
-    UserSerializer, )
+    UserSerializer,
+    AttachmentSerializer,
+)
 
 from .serializers.layer import get_serializer, get_model
 
@@ -138,6 +142,12 @@ class KeywordViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Keyword.objects.all()
     serializer_class = KeywordSerializer
+
+
+class AttachmentViewSet(viewsets.ModelViewSet):
+
+    queryset = Attachment.objects.all()
+    serializer_class = AttachmentSerializer
 
 
 class LayerViewList(generics.ListCreateAPIView):

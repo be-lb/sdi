@@ -153,7 +153,7 @@ class UserMap(models.Model):
             # cat = Category.objects.get(id=cat_id)
             CategoryLink.objects.create(
                 category=cat,
-                user_map=self, )
+                user_map=self)
 
     def update_layers(self, layers=[]):
         self.layers.clear()
@@ -174,6 +174,17 @@ class UserMap(models.Model):
         return str(self.title)
 
 
+class AttachmentManager(models.Manager):
+
+    def create_attachment(self, name_data, url_data, user_map):
+        instance = Attachment(
+            name=message(**name_data),
+            url=message(**url_data),
+            user_map=user_map)
+        instance.save()
+        return instance
+
+
 class Attachment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.ForeignKey(
@@ -188,6 +199,12 @@ class Attachment(models.Model):
         UserMap,
         on_delete=models.CASCADE,
         related_name='attachment_user_map', )
+
+    objects = AttachmentManager()
+
+    def update(self, data):
+        self.name.update_record(**data.pop('name'))
+        self.url.update_record(**data.pop('url'))
 
     def __str__(self):
         return str(self.name)
