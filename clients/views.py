@@ -41,15 +41,25 @@ Client = namedtuple('Client', ['name', 'icon'])
 BUNDLE_CACHE = dict()
 ICON_CACHE = dict()
 
-configured_clients = dict()
-for url, client_root in settings.CLIENTS.items():
-    manifest_path = safe_join(client_root, 'manifest.json')
+
+def configure_clients():
+    clients = dict()
+    clients_root = settings.CLIENTS_ROOT
+    manifest_path = safe_join(clients_root, 'manifest.json')
     with open(manifest_path) as f:
         manifest = json.load(f)
-        configured_clients[url] = {
-            'name': manifest['name'],
-            'root': safe_join(client_root, manifest['root'])
-        }
+        for client in manifest['clients']:
+            route = client['route']
+            name = client['name']
+            root = safe_join(clients_root, client['root'])
+            clients[route] = dict(
+                name=name,
+                root=root,
+            )
+
+    return clients
+
+configured_clients = configure_clients()
 
 
 def export_manifest():
