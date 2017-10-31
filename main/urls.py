@@ -33,8 +33,10 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
+from main.views import index
 
 urlpatterns = [
+    url(r'^', index, name='main.index'),
     url(r'^layers/', include('layers.urls')),
     url(r'^api/', include('api.urls')),
     url(r'^admin/', admin.site.urls),
