@@ -137,6 +137,9 @@ class UserMap(models.Model):
 
     objects = UserMapManager()
 
+    class Meta:
+        ordering = ['-last_modified']
+
     def update_title(self, data):
         self.title.update_record(**data)
 
