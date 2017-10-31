@@ -18,7 +18,7 @@ import mimetypes
 import os
 import posixpath
 import stat
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 import json
 
 from django.shortcuts import render
@@ -43,7 +43,7 @@ ICON_CACHE = dict()
 
 
 def configure_clients():
-    clients = dict()
+    clients = OrderedDict()
     clients_root = settings.CLIENTS_ROOT
     manifest_path = safe_join(clients_root, 'manifest.json')
     with open(manifest_path) as f:
