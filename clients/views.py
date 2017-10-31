@@ -67,7 +67,8 @@ def export_manifest():
     for codename, manifest in configured_clients.items():
         url = reverse('clients.root', args=(codename, ''))
         name = manifest['name']
-        result.append(dict(url=url, name=name))
+        result.append(dict(
+            url=url, name=name, codename=codename))
 
     return result
 
