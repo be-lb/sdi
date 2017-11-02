@@ -22,6 +22,7 @@ from django.contrib.auth import authenticate, login, logout
 from rest_framework import viewsets
 from rest_framework import generics
 from rest_framework.renderers import JSONRenderer
+from rest_framework.pagination import PageNumberPagination
 
 from .models import (
     Category,
@@ -31,8 +32,7 @@ from .models import (
     MetaData,
     Topic,
     UserMap,
-    Attachment,
-)
+    Attachment, )
 from .serializers import (
     CategorySerializer,
     KeywordSerializer,
@@ -42,8 +42,7 @@ from .serializers import (
     TopicSerializer,
     UserMapSerializer,
     UserSerializer,
-    AttachmentSerializer,
-)
+    AttachmentSerializer, )
 
 from .serializers.layer import get_serializer, get_model
 
@@ -79,7 +78,6 @@ def logout_view(request):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -88,7 +86,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class UserMapViewSet(viewsets.ModelViewSet):
-
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -97,7 +94,6 @@ class UserMapViewSet(viewsets.ModelViewSet):
 
 
 class MessageViewSet(viewsets.ModelViewSet):
-
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -106,7 +102,6 @@ class MessageViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -115,7 +110,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class LayerInfoViewSet(viewsets.ModelViewSet):
-
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -123,13 +117,17 @@ class LayerInfoViewSet(viewsets.ModelViewSet):
     serializer_class = LayerInfoSerializer
 
 
-class MetaDataViewSet(viewsets.ModelViewSet):
+class Pagination(PageNumberPagination):
+    page_size = 12
 
+
+class MetaDataViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows MetaData to be viewed or edited.
     """
     queryset = MetaData.objects.all()
     serializer_class = MetaDataSerializer
+    pagination_class = Pagination
 
 
 class TopicViewSet(viewsets.ReadOnlyModelViewSet):
@@ -151,7 +149,6 @@ class AttachmentViewSet(viewsets.ModelViewSet):
 
 
 class LayerViewList(generics.ListCreateAPIView):
-
     def get_queryset(self):
         schema = self.kwargs.get('schema')
         table = self.kwargs.get('table')

@@ -13,7 +13,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
 """sdi_api URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -36,14 +35,14 @@ from django.contrib.auth import views as auth_views
 from main.views import index
 
 urlpatterns = [
-    url(r'^', index, name='main.index'),
+    url(r'^$', index, name='main.index'),
     url(r'^layers/', include('layers.urls')),
     url(r'^api/', include('api.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^client/', include('clients.urls')),
     url(r'^documents/', include('documents.urls')),
     url(r'^login/$',
-        auth_views.LoginView.as_view(
-            template_name='main/login.html'), name='login'),
+        auth_views.LoginView.as_view(template_name='main/login.html'),
+        name='login'),
     url(r'^catalog/', include('catalog.urls')),
 ]
