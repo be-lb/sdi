@@ -167,6 +167,15 @@ def app(request, app_name, path):
     return render_bundle(request, path, fullpath)
 
 
+def app_map(request, app_name):
+    if app_name not in configured_clients:
+        raise Http404('{} not configured'.format(app_name))
+    client_root = configured_clients[app_name]['root']
+    fullpath = safe_join(client_root, 'bundle.js.map')
+
+    return serve_static(fullpath)
+
+
 def style(request, app_name, path):
     if app_name not in configured_clients:
         raise Http404('{} not configured'.format(app_name))
