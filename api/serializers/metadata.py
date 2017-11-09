@@ -38,7 +38,6 @@ class KeywordSerializer(serializers.ModelSerializer):
 
 
 class BoundingBoxSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = BoundingBox
         fields = ('west', 'north', 'east', 'south')

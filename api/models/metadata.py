@@ -91,7 +91,6 @@ class Role(models.Model):
 
 
 class MetaDataManager(models.Manager):
-
     def create_draft(self, table_name, geometry_type, user):
         poc = user.pointofcontact_set.first()
         org = poc.organisation
@@ -104,7 +103,7 @@ class MetaDataManager(models.Manager):
             role_name = simple_message('author')
             role = Role.objects.create(code='author', name=role_name)
 
-        md = MetaData.objects.create(
+        md = self.create(
             title=title_rec,
             abstract=abstract_rec,
             resource_identifier=table_name,

@@ -125,7 +125,13 @@ class MetaDataViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows MetaData to be viewed or edited.
     """
-    queryset = MetaData.objects.all()
+
+    queryset = MetaData.objects.select_related(
+        'title', 'abstract', 'bounding_box').prefetch_related(
+            'topics', 'keywords', 'responsible_organisation',
+            'point_of_contact', 'point_of_contact__user',
+            'responsible_organisation__name', 'point_of_contact__organisation',
+            'point_of_contact__organisation__name')
     serializer_class = MetaDataSerializer
     pagination_class = Pagination
 
