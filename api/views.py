@@ -138,13 +138,15 @@ class MetaDataViewSet(viewsets.ModelViewSet):
 
 class TopicViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = Topic.objects.all()
+    queryset = Topic.objects.prefetch_related('name', 'thesaurus',
+                                              'thesaurus__name')
     serializer_class = TopicSerializer
 
 
 class KeywordViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = Keyword.objects.all()
+    queryset = Keyword.objects.prefetch_related('name', 'thesaurus',
+                                                'thesaurus__name').order_by('thesaurus')
     serializer_class = KeywordSerializer
 
 

@@ -16,10 +16,17 @@
 
 from rest_framework import serializers
 
-from ..models import (MetaData, Topic, Keyword, BoundingBox, PointOfContact,
+from ..models import (Thesaurus, MetaData, Topic, Keyword, BoundingBox, PointOfContact,
                       ResponsibleOrganisation, PointOfContact)
 from .message import MessageRecordSerializer
 
+
+class ThesaurusSerializer(serializers.ModelSerializer):
+    name = MessageRecordSerializer()
+
+    class Meta:
+        model = Thesaurus
+        fields = ('id', 'name', 'uri')
 
 class TopicSerializer(serializers.ModelSerializer):
     name = MessageRecordSerializer()
@@ -31,6 +38,7 @@ class TopicSerializer(serializers.ModelSerializer):
 
 class KeywordSerializer(serializers.ModelSerializer):
     name = MessageRecordSerializer()
+    thesaurus = ThesaurusSerializer()
 
     class Meta:
         model = Keyword
