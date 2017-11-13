@@ -16,7 +16,9 @@
 
 import math
 import json
+
 from django.urls import reverse
+from django.db import transaction
 from rest_framework import serializers
 
 from ..models import (
@@ -166,17 +168,23 @@ class UserMapSerializer(NonNullModelSerializer):
             image_url,
         )
 
-    def update(self, instance, validated_data):
+    def update(self, i, validated_data):
         title_data = validated_data.get('title')
         description_data = validated_data.get('description')
         image_url = validated_data.get('image_url')
         categories = validated_data.get('categories', [])
         layers = validated_data.get('layers', [])
 
-        instance.update_title(title_data)
-        instance.update_description(description_data)
-        instance.update_image(image_url)
-        instance.update_categories(categories)
-        instance.update_layers(layers)
+        with transaction.atomic():
+            instance = (
+                UserMap.objects
+                .select_for_update()
+                .get(pk=i.pk))
+
+            instance.update_title(title_data)
+            instance.update_description(description_data)
+            instance.update_image(image_url)
+            instance.update_categories(categories)
+            instance.update_layers(layers)
 
         return instance

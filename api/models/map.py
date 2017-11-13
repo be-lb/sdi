@@ -152,6 +152,7 @@ class UserMap(models.Model):
 
     def update_categories(self, data=[]):
         self.categories.clear()
+        self.save()
         for cat in data:
             # cat = Category.objects.get(id=cat_id)
             CategoryLink.objects.create(
@@ -169,6 +170,7 @@ class UserMap(models.Model):
                     layer=layer,
                     user_map=self,
                     sort_index=idx, )
+                print('Attached Layer {} at index {}'.format(layer, idx))
             except Exception as e:
                 print('Failed to Link Layer {}'.format(e))
                 print('{}'.format(layer_data))
