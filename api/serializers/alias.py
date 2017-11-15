@@ -44,9 +44,9 @@ class AliasSerializer(serializers.ModelSerializer):
     def update(self, i, validated_data):
         select_data = validated_data.pop('select')
         replace_data = validated_data.pop('replace')
-        print('alias update {}'.format(type(replace_data)))
-        i.replace.update_record(**replace_data)
+        # print('alias update {}'.format(type(select_data)))
+        i.replace.update_record(replace_data['fr'], replace_data['nl'])
         i.select = select_data
-
+        i.save()
         return i
 
