@@ -14,17 +14,21 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from .message import MessageRecordSerializer
-from .map import (
-    UserMapSerializer,
-    CategorySerializer,
-    LayerInfoSerializer,
-    AttachmentSerializer, )
-from .user import UserSerializer
+from django.db import models
 
-from .metadata import (
-    MetaDataSerializer,
-    KeywordSerializer,
-    TopicSerializer, )
+from .message import message_field
 
-from .alias import AliasSerializer
+
+class Alias(models.Model):
+    """
+export const IAliasIO = i({
+    select: io.string,
+    replace: MessageRecordIO,
+}, 'IAliasIO');
+    """
+
+    select = models.TextField(blank=True)
+    replace = message_field('alias_replace')
+
+    def __str__(self):
+        return '{}'.format(self.select)

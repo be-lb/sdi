@@ -1,4 +1,3 @@
-
 #
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
@@ -21,8 +20,7 @@ from .map import (
     Category,
     LayerInfo,
     UserMap,
-    Attachment,
-)
+    Attachment, )
 
 from .message import MessageRecord
 
@@ -35,5 +33,6 @@ from .metadata import (
     ResponsibleOrganisation,
     Role,
     Thesaurus,
-    Topic,
-)
+    Topic, )
+
+from .alias import Alias

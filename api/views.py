@@ -24,25 +24,12 @@ from rest_framework import generics
 from rest_framework.renderers import JSONRenderer
 from rest_framework.pagination import PageNumberPagination
 
-from .models import (
-    Category,
-    Keyword,
-    LayerInfo,
-    MessageRecord,
-    MetaData,
-    Topic,
-    UserMap,
-    Attachment, )
+from .models import (Category, Keyword, LayerInfo, MessageRecord, MetaData,
+                     Topic, UserMap, Attachment, Alias)
 from .serializers import (
-    CategorySerializer,
-    KeywordSerializer,
-    LayerInfoSerializer,
-    MessageRecordSerializer,
-    MetaDataSerializer,
-    TopicSerializer,
-    UserMapSerializer,
-    UserSerializer,
-    AttachmentSerializer, )
+    CategorySerializer, KeywordSerializer, LayerInfoSerializer,
+    MessageRecordSerializer, MetaDataSerializer, TopicSerializer,
+    UserMapSerializer, UserSerializer, AttachmentSerializer, AliasSerializer)
 
 from .serializers.layer import get_serializer, get_model
 
@@ -169,3 +156,12 @@ class LayerViewList(generics.ListCreateAPIView):
         table = self.kwargs.get('table')
 
         return get_serializer(schema, table)
+
+
+class AliasViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows alias to be viewed or edited.
+    """
+    queryset = Alias.objects.prefetch_related('replace')
+    serializer_class = AliasSerializer
+    pagination_class = Pagination

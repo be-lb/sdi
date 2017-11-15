@@ -14,17 +14,16 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from rest_framework import serializers
+
+from ..models import Alias
 from .message import MessageRecordSerializer
-from .map import (
-    UserMapSerializer,
-    CategorySerializer,
-    LayerInfoSerializer,
-    AttachmentSerializer, )
-from .user import UserSerializer
 
-from .metadata import (
-    MetaDataSerializer,
-    KeywordSerializer,
-    TopicSerializer, )
 
-from .alias import AliasSerializer
+class AliasSerializer(serializers.ModelSerializer):
+
+    replace = MessageRecordSerializer()
+
+    class Meta:
+        model = Alias
+        fields = ('id', 'select', 'replace')
