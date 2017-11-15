@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'api',
     'clients',
     'documents',
+    'timeserie',
     'rest_framework',
     'rest_framework_gis',
     'corsheaders',

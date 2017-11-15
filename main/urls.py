@@ -37,6 +37,7 @@ from main.views import index
 urlpatterns = [
     url(r'^$', index, name='main.index'),
     url(r'^layers/', include('layers.urls')),
+    url(r'^timeserie/', include('timeserie.urls')),
     url(r'^api/', include('api.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^client/', include('clients.urls')),
