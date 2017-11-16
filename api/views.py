@@ -164,4 +164,4 @@ class AliasViewSet(viewsets.ModelViewSet):
     """
     queryset = Alias.objects.prefetch_related('replace')
     serializer_class = AliasSerializer
-    pagination_class = Pagination
+    # pagination_class = Pagination
