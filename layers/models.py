@@ -45,13 +45,13 @@ def get_manager(schema):
 # the one from django hurts on materialized views
 def get_table_description(connection, cursor, table_name):
     "Returns a description of the table, with the DB-API cursor.description interface."
-        # As cursor.description does not return reliably the nullable property,
-        # we have to query the information_schema (#7783)
-        # cursor.execute("""
-        #     SELECT column_name, is_nullable, column_default
-        #     FROM information_schema.columns
-        #     WHERE table_name = %s""", [table_name])
-        # field_map = {line[0]: line[1:] for line in cursor.fetchall()}
+    # As cursor.description does not return reliably the nullable property,
+    # we have to query the information_schema (#7783)
+    # cursor.execute("""
+    #     SELECT column_name, is_nullable, column_default
+    #     FROM information_schema.columns
+    #     WHERE table_name = %s""", [table_name])
+    # field_map = {line[0]: line[1:] for line in cursor.fetchall()}
     cursor.execute("SELECT * FROM %s LIMIT 1" %
                    connection.ops.quote_name(table_name))
     return [
@@ -112,6 +112,16 @@ def inspect_table(schema, table_name):
         model_fields = dict()
         geometry_field = None
         geometry_type = None
+
+        gid_is_id = False
+
+        column_names = [row[0] for row in table_description]
+        if None == primary_key_column and not 'id' in column_names:
+            if 'gid' in column_names:
+                gid_is_id = True
+            else:
+                raise NoPKError()
+
         for row in table_description:
             comment_notes = []
             # Holds Field notes, to be displayed in a Python comment.
@@ -130,7 +140,9 @@ def inspect_table(schema, table_name):
             column_to_field_name[column_name] = att_name
 
             # Add primary_key and unique, if necessary.
-            if column_name == primary_key_column:
+            if gid_is_id and column_name == 'gid':
+                extra_params['primary_key'] = True
+            elif column_name == primary_key_column:
                 extra_params['primary_key'] = True
             elif column_name in unique_columns:
                 extra_params['unique'] = True
@@ -195,8 +207,10 @@ def inspect_table(schema, table_name):
 
             model_fields[att_name] = F(**extra_params)
 
-        if None == primary_key_column and not 'id' in used_column_names:
-            raise NoPKError()
+        # if None == primary_key_column and not 'id' in used_column_names:
+        #     if 'gid' in used_column_names:
+        #         model_fields['gid']
+        #     raise NoPKError()
 
         meta_class = get_meta(table_name, constraints, column_to_field_name)
         model_fields.update(
