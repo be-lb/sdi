@@ -124,20 +124,20 @@ class MetaDataViewSet(viewsets.ModelViewSet):
     serializer_class = MetaDataSerializer
     pagination_class = Pagination
 
-    def list(self, request, *args, **kwargs):
-        def get_data():
-            queryset = self.filter_queryset(self.get_queryset())
+    # def list(self, request, *args, **kwargs):
+    #     def get_data():
+    #         queryset = self.filter_queryset(self.get_queryset())
 
-            page = self.paginate_queryset(queryset)
-            if page is not None:
-                serializer = self.get_serializer(page, many=True)
-                return serializer.data
+    #         page = self.paginate_queryset(queryset)
+    #         if page is not None:
+    #             serializer = self.get_serializer(page, many=True)
+    #             return serializer.data
 
-            serializer = self.get_serializer(queryset, many=True)
-            serializer.data
+    #         serializer = self.get_serializer(queryset, many=True)
+    #         serializer.data
 
-        data = cache.get_or_set( request.path, get_data, 3600 * 24)
-        return Response(data)
+    #     data = cache.get_or_set( request.path, get_data, 3600 * 24)
+    #     return Response(data)
 
 class TopicViewSet(viewsets.ReadOnlyModelViewSet):
 
