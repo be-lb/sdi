@@ -105,7 +105,7 @@ class LayerInfoViewSet(viewsets.ModelViewSet):
 
 
 class Pagination(PageNumberPagination):
-    page_size = 12
+    page_size = 160
 
 
 class MetaDataViewSet(viewsets.ModelViewSet):
