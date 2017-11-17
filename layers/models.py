@@ -142,7 +142,8 @@ def inspect_table(schema, table_name):
             # Add primary_key and unique, if necessary.
             if gid_is_id and column_name == 'gid':
                 extra_params['primary_key'] = True
-            elif column_name == primary_key_column:
+
+            if column_name == primary_key_column:
                 extra_params['primary_key'] = True
             elif column_name in unique_columns:
                 extra_params['unique'] = True
