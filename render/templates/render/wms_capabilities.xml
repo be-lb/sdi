@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<WMS_Capabilities xmlns="http://www.opengis.net/wms"
+xmlns:sld="http://www.opengis.net/sld" xmlns:xlink="http://www.w3.org/1999/xlink"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.3.0"
+xsi:schemaLocation="http://www.opengis.net/wms
+http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd http://www.opengis.net/sld
+http://schemas.opengis.net/sld/1.1.0/sld_capabilities.xsd">
+<Service>
+  <Name>WMS</Name>
+  <Title>{{ title }}</Title>
+  <Abstract>{{ abstract }}</Abstract>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"
+xlink:href="{{ wms_url }}"/>
+    <Fees>none</Fees>
+    <AccessConstraints>none</AccessConstraints>
+</Service>
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xlink:href="{{ wms_url }}?"/></Get>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+      <Format>{{ mime }}</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xlink:href="{{ wms_url }}?"/></Get>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+  </Request>
+  <Exception>
+    <Format>XML</Format>
+  </Exception>
+  <Layer>
+  <Title>{{ title }}</Title>
+  {% for layer in layers %}
+    <Layer>
+      <Name>{{ layer.name }}</Name>
+      <Title>{{ layer.title }}</Title>
+      <CRS>{{ layer.srs }}</CRS>
+      <EX_GeographicBoundingBox>
+        <westBoundLongitude>{{ layer.geo.minx }}</westBoundLongitude>
+        <eastBoundLongitude>{{ layer.geo.maxx }}</eastBoundLongitude>
+        <southBoundLatitude>{{ layer.geo.miny }}</southBoundLatitude>
+        <northBoundLatitude>{{ layer.geo.maxy }}</northBoundLatitude>
+      </EX_GeographicBoundingBox>
+      <BoundingBox
+          CRS="{{ layer.srs }}"
+          minx="{{ layer.bbox.minx }}"
+          miny="{{ layer.bbox.miny }}"
+          maxx="{{ layer.bbox.maxx }}"
+          maxy="{{ layer.bbox.maxy }}" />
+    </Layer>
+  {% endfor %}
+  </Layer>
+
+</Capability>
+</WMS_Capabilities>

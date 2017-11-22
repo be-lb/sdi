@@ -1,93 +1,80 @@
-import mapnik
+
+from .mapnik_xml import Style, Rule, Filter,MarkersSymbolizer, TextSymbolizer, stroke, fill
 
 
-def make_style(symbolizers):
-    style = mapnik.Style()
-    rule = mapnik.Rule()
-    for sym in symbolizers:
-        rule.symbols.append(sym)
-    style.rules.append(rule)
+# if (config.label) {
+#     const label = config.label;
+#     propName = label.propName;
+#     resLimit = label.resLimit;
+#     labelStyle = new style.Text({
+#         font: labelFont(label.size),
+#         textAlign: label.align,
+#         textBaseline: label.baseline,
+#         offsetX: label.xOffset,
+#         offsetY: label.yOffset,
+#         fill: new style.Fill({
+#             color: label.color,
+#         }),
+#         stroke: new style.Stroke({
+#             width: 1,
+#             color: 'white',
+#         }),
+#     });
+# }
 
-    return style
+def label(rule, config):
+    s = TextSymbolizer(rule, config['propName'])
+    s.set('face_name', 'open_sans') # FIXME
+    s.set('size', config['size'])
+    s.set('dx', config['offsetX'])
+    s.set('dy', config['offsetY'])
+    s.set('justify_alignment', config['textAlign'])
+    s.set('vertical_alignment', config['textBaseline'])
+    s.set('fill', config['color'])
+    s.set('halo_fill', '#ffffff')
+    s.set('halo_radius', 1)
+    
 
-
-# def make_symbolizer(config):
-#     s = mapnik.LineSymbolizer()
-#     s.stroke = mapnik.Color(config['strokeColor'])
-#     s.stroke_width = config['strokeWidth']
-#     if 'dash' in config:
-#         s.stroke_dasharray = config['dash']
-#     return s
-def make_label_symbolizer(config):
-
-
-def point_style_simple(config):
-    return make_style([make_symbolizer(config)])
-
-
-def make_discrete_rule(propname, values):
-    r = mapnik.Rule()
-    r.filter = mapnik.Expression(' or '.join(
-        map(lambda v: '[{}] = \'{}\''.format(propname, v), values)))
-
-    return r
-
-
-def line_style_discrete(config):
-    style = mapnik.Style()
-    propname = config['propName']
-    groups = config['groups']
-
-    for group in groups:
-        rule = make_discrete_rule(propname, group['values'])
-        rule.symbols.append(make_symbolizer(group))
-        style.rules.append(rule)
-
-    return style
+def marker(rule, config):
+    s = MarkersSymbolizer(rule)
+    s.set('width', config['size'])
+    s.set('heigh', config['size'])
+    s.set('fill', config['color'])
 
 
-def make_continuous_rule(propname, low, high):
-    r = mapnik.Rule()
-    r.filter = mapnik.Expression(
-        '[{0}] >= {1} and [{0}] < {2}'.format(propname, low, high))
-
-    return r
 
 
-def line_style_continuous(config):
-    style = mapnik.Style()
-    propname = config['propName']
-    intervals = config['intervals']
-
-    for group in groups:
-        rule = make_continuous_rule(propname, group['low'], group['high'])
-        rule.symbols.append(make_symbolizer(group))
-        style.rules.append(rule)
-
-    return style
+def style_simple(style, config):
+    if 'label' in config:
+        label(style, config['label'])
+    if 'marker' in config:
+        marker(style, config['marker'])
 
 
-# const lineStyle = (config: LineStyleConfig): StyleFn => {
-#     switch (config.kind) {
-#         case 'line-simple':
-#             return lineStyleSimple(config);
-#         case 'line-discrete':
-#             return lineStyleDiscrete(config);
-#         case 'line-continuous':
-#             return lineStyleContinuous(config);
-#     }
-# };
+
+
+
+
+def style_discrete(style, config):
+    pass
+
+
+
+def style_continuous(style, config):
+    pass
+
+
 
 styles = {
-    'line-simple': line_style_simple,
-    'line-discrete': line_style_discrete,
-    'line-continuous': line_style_continuous,
+    'point-simple': style_simple,
+    'point-discrete': style_discrete,
+    'point-continuous': style_continuous,
 }
 
 
-def line_style(config):
-    kind = config['kind']
+def point_style(map_root, layer_info):
+    kind = layer_info.style['kind']
+    s = Style(map_root, str(layer_info.id))
     if kind in styles:
-        return style[kind](config)
+        styles[kind](s, layer_info.style)
 
-    return mapnik.Style()

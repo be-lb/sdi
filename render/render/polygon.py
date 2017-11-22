@@ -1,11 +1,17 @@
 
-from .mapnik_xml import Style, Rule, Filter, LineSymbolizer, stroke
+from .mapnik_xml import (
+    Style, Rule, Filter, 
+    PolygonSymbolizer,LineSymbolizer, 
+    stroke, fill, )
 
 
 
 def style_simple(style, config):
-    stroke(LineSymbolizer(Rule(style)), 
+    rule = Rule(style)
+    stroke(LineSymbolizer(rule),
         config['strokeWidth'], config['strokeColor'])
+    fill(PolygonSymbolizer(rule),
+        config['fillColor'])
 
 
 
@@ -28,12 +34,14 @@ def style_discrete(style, config):
             propname, group['values'])
         stroke(LineSymbolizer(rule), 
             group['strokeWidth'], group['strokeColor'] )
+        fill(PolygonSymbolizer(rule),
+            group['fillColor'])
 
 
 
 
 def make_continuous_rule(style, propname, low, high):
-    r = Rule()
+    r = Rule(style)
     Filter(r,
         '[{0}] >= {1} and [{0}] < {2}'.format(propname, low, high))
 
@@ -49,18 +57,20 @@ def style_continuous(style, config):
             propname, group['low'], group['high'])
         stroke(LineSymbolizer(rule), 
             group['strokeWidth'], group['strokeColor'] )
+        fill(PolygonSymbolizer(rule),
+            group['fillColor'])
 
 
 
 
 styles = {
-    'line-simple': style_simple,
-    'line-discrete': style_discrete,
-    'line-continuous': style_continuous,
+    'polygon-simple': style_simple,
+    'polygon-discrete': style_discrete,
+    'polygon-continuous': style_continuous,
 }
 
 
-def line_style(map_root, layer_info):
+def polygon_style(map_root, layer_info):
     kind = layer_info.style['kind']
     s = Style(map_root, str(layer_info.id))
     if kind in styles:

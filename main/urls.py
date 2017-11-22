@@ -46,4 +46,5 @@ urlpatterns = [
         auth_views.LoginView.as_view(template_name='main/login.html'),
         name='login'),
     url(r'^catalog/', include('catalog.urls')),
+    url(r'^render/', include('render.urls')),
 ]
