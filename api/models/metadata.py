@@ -58,6 +58,14 @@ class BoundingBox(models.Model):
     east = models.FloatField(default=0)
     south = models.FloatField(default=0)
 
+    def to_polygon_wkt(self):
+        return 'POLYGON(({west} {south}, {west} {north}, {east} {north}, {east} {south}, {west} {south}))'.format(
+        west=self.west,
+        north=self.north,
+        east=self.east,
+        south=self.south
+        )
+
     def __str__(self):
         return '{}, {}, {}, {}'.format(self.west, self.south, self.east,
                                        self.north)

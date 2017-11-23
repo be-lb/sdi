@@ -15,6 +15,7 @@ def md_to_csw(md):
             title=md.title.fr,
             abstract=md.abstract.fr,
             date=md.revision,
+            wkt_bbox=md.bounding_box.to_polygon_wkt()
         ))
 
 
@@ -65,36 +66,43 @@ class Repository:
               maxrecords=10, startposition=0):
         ''' Query records from underlying repository '''
 
-        print('QA {} {}'.format(maxrecords, startposition))
-        # run the raw query and get total
-        if 'where' in constraint:  # GetRecords with constraint
-            query = MetaData.objects.extra(
-                where=[constraint['where']], params=constraint['values'])
+        print('QA {} {} {}'.format(maxrecords, startposition, constraint))
 
-        else:  # GetRecords sans constraint
-            query = MetaData.objects
+        try:
 
-        total = query.count()
-        # apply sorting, limit and offset
-        if sortby is not None:
-            if False:
-                print('False')
-            # if 'spatial' in sortby and sortby['spatial']:  # spatial sort
-            #     desc = False
-            #     if sortby['order'] == 'DESC':
-            #         desc = True
-            #     query = query.all()
-            # return [str(total), sorted(query, key=lambda x:
-            # float(util.get_geometry_area(getattr(x,
-            # sortby['propertyname']))),
-            # reverse=desc)[startposition:startposition+int(maxrecords)]]
-            else:
-                if sortby['order'] == 'DESC':
-                    pname = '-%s' % sortby['propertyname']
+            # run the raw query and get total
+            if 'where' in constraint:  # GetRecords with constraint
+                query = MetaData.objects.extra(
+                    where=[constraint['where']], params=constraint['values'])
+
+            else:  # GetRecords sans constraint
+                query = MetaData.objects.all()
+
+            total = query.count()
+            # apply sorting, limit and offset
+            if sortby is not None:
+                if False:
+                    print('False')
+                # if 'spatial' in sortby and sortby['spatial']:  # spatial sort
+                #     desc = False
+                #     if sortby['order'] == 'DESC':
+                #         desc = True
+                #     query = query.all()
+                # return [str(total), sorted(query, key=lambda x:
+                # float(util.get_geometry_area(getattr(x,
+                # sortby['propertyname']))),
+                # reverse=desc)[startposition:startposition+int(maxrecords)]]
                 else:
-                    pname = sortby['propertyname']
-                results = map(md_to_csw, query.order_by(pname))
-                return [str(total),
-                        list(results)[startposition:startposition + int(maxrecords)]]
-        else:  # no sort
-            return [str(total), list(map(md_to_csw, query.all()))[startposition:startposition + int(maxrecords)]]
+                    if sortby['order'] == 'DESC':
+                        pname = '-%s' % sortby['propertyname']
+                    else:
+                        pname = sortby['propertyname']
+                    results = map(md_to_csw, query.order_by(pname))
+                    return [str(total),
+                            list(results)[startposition:startposition + int(maxrecords)]]
+            else:  # no sort
+                return [str(total), list(map(md_to_csw, query.all()))[startposition:startposition + int(maxrecords)]]
+        
+        except Exception as ex:
+            print('Exception {}'.format(ex))
+            return []

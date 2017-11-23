@@ -19,9 +19,14 @@ from . import views
 
 urlpatterns = [
     url(
+        r'^$',
+        views.get_csw,
+        name='catalog',
+    ),
+    url(
         r'^get/$',
         views.get_records,
-        name='catalog',
+        name='catalog-recs',
     ),
     url(
         r'^get/(?P<id>.+)$',

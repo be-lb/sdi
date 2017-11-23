@@ -2,6 +2,7 @@ import os
 
 from django.http import HttpResponse
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from pycsw.server import Csw
 from lxml import etree
 
@@ -10,7 +11,7 @@ def get_csw_config(request):
     return {
         'server': {
             'home': '.',
-            'url': reverse('catalog'),
+            'url': '{}://{}{}'.format(request.scheme, request.get_host(),reverse('catalog')),
             'encoding': 'UTF-8',
             'language': 'en',
             'maxrecords': '10',
@@ -20,12 +21,10 @@ def get_csw_config(request):
             #  'pretty_print': 'true',
             #  'domainquerytype': 'range',
             'domaincounts': 'true',
-            'profiles': 'apiso,ebrim',
+            'profiles': 'apiso',
         },
         'repository': {
             'source': 'catalog.repo.Repository',
-            # 'filter': 'is_published = 1',
-            # 'filter': '',
             'mappings': os.path.join(os.path.dirname(__file__), 'repo/mappings.py')
         },
         'metadata:main': {
@@ -120,3 +119,10 @@ def get_record_by_id(request, id):
     node = DirectCsw(request).direct_dispatch_get_id(request, id)
     # return HttpResponse(etree.tostring(node, pretty_print=True))
     return HttpResponse(node)
+
+@csrf_exempt
+def get_csw(request):
+    csw = Csw(get_csw_config(request), request.environ, version='2.0.2')
+    http_status_code, response = csw.dispatch_wsgi()
+    print(response)
+    return HttpResponse(response, content_type=csw.contenttype)
