@@ -49,13 +49,13 @@ def configure_clients():
     with open(manifest_path) as f:
         manifest = json.load(f)
         for client in manifest['clients']:
+            info = dict()
             route = client['route']
-            name = client['name']
-            root = safe_join(clients_root, client['root'])
-            clients[route] = dict(
-                name=name,
-                root=root,
-            )
+            name = client.get('name', None)
+            info['root'] = safe_join(clients_root, client['root'])
+            if name is not None:
+                info['name'] = name
+            clients[route] = info
 
     return clients
 
@@ -66,9 +66,13 @@ def export_manifest():
     result = []
     for codename, manifest in configured_clients.items():
         url = reverse('clients.root', args=(codename, ''))
-        name = manifest['name']
-        result.append(dict(
-            url=url, name=name, codename=codename))
+        if 'name' in manifest:
+            name = manifest['name']
+            result.append(dict(
+                url=url, name=name, codename=codename))
+        else:
+            result.append(dict(
+                url=url, codename=codename))
 
     return result
 
