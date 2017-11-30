@@ -31,6 +31,7 @@ from django.http import (
     HttpResponse, )
 from django.urls import reverse
 from django.middleware.csrf import get_token
+from django.views.decorators.clickjacking import xframe_options_exempt
 
 from django.utils.six.moves.urllib.parse import unquote
 from django.views import static
@@ -98,7 +99,7 @@ def get_resource(fullpath, cache):
 
     return cache[fullpath].data
 
-
+@xframe_options_exempt
 def render_index(request, app_name, path):
     user_id = ''
     if request.user.is_authenticated():
