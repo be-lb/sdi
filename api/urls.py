@@ -20,7 +20,7 @@ from rest_framework import routers
 from . import views
 
 router = routers.DefaultRouter(trailing_slash=False)
-router.register(r'maps', views.UserMapViewSet)
+router.register(r'maps', views.UserMapViewSet, base_name='usermap')
 router.register(r'messages', views.MessageViewSet)
 router.register(r'categories', views.CategoryViewSet)
 router.register(r'layerinfos', views.LayerInfoViewSet)

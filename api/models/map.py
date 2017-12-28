@@ -106,8 +106,19 @@ class UserMapManager(models.Manager):
 
 
 class UserMap(models.Model):
+    DRAFT = 'draft'
+    PUBLISHED = 'published'
+    STATUS_CHOICES = (
+        (DRAFT, 'Draft'),
+        (PUBLISHED, 'Published'),
+    )
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     last_modified = models.DateTimeField(auto_now=True, editable=False)
+    status = models.CharField(
+        max_length=32,
+        choices=STATUS_CHOICES,
+        default=DRAFT, )
     user = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
@@ -139,6 +150,9 @@ class UserMap(models.Model):
 
     class Meta:
         ordering = ['-last_modified']
+
+    def update_status(self, status):
+        self.status = status # could be a nice to send notifications
 
     def update_title(self, data):
         self.title.update_record(**data)

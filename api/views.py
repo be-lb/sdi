@@ -16,7 +16,7 @@
 from json import loads
 from django.core.serializers import serialize
 from django.urls import reverse
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
@@ -67,6 +67,7 @@ def logout_view(request):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -75,14 +76,28 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class UserMapViewSet(viewsets.ModelViewSet):
+
     """
     API endpoint that allows user maps to be viewed or edited.
     """
-    queryset = UserMap.objects.all().order_by('-last_modified')
+
     serializer_class = UserMapSerializer
+
+    def get_queryset(self):
+        if 'list' == self.action:
+            return (
+                UserMap.objects.filter(
+                    status='published'
+                    ).order_by(
+                    '-last_modified'
+                    )
+                )
+
+        return UserMap.objects.all()
 
 
 class MessageViewSet(viewsets.ModelViewSet):
+
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -91,6 +106,7 @@ class MessageViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
+
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -99,6 +115,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class LayerInfoViewSet(viewsets.ModelViewSet):
+
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -107,20 +124,21 @@ class LayerInfoViewSet(viewsets.ModelViewSet):
 
 
 class Pagination(PageNumberPagination):
-    page_size = 160
+    page_size = 120
 
 
 class MetaDataViewSet(viewsets.ModelViewSet):
+
     """
     API endpoint that allows MetaData to be viewed or edited.
     """
 
     queryset = MetaData.objects.select_related(
         'title', 'abstract', 'bounding_box').prefetch_related(
-            'topics', 'keywords', 'responsible_organisation',
-            'point_of_contact', 'point_of_contact__user',
-            'responsible_organisation__name', 'point_of_contact__organisation',
-            'point_of_contact__organisation__name')
+        'topics', 'keywords', 'responsible_organisation',
+        'point_of_contact', 'point_of_contact__user',
+        'responsible_organisation__name', 'point_of_contact__organisation',
+        'point_of_contact__organisation__name')
     serializer_class = MetaDataSerializer
     pagination_class = Pagination
 
@@ -138,6 +156,7 @@ class MetaDataViewSet(viewsets.ModelViewSet):
 
     #     data = cache.get_or_set( request.path, get_data, 3600 * 24)
     #     return Response(data)
+
 
 class TopicViewSet(viewsets.ReadOnlyModelViewSet):
 
@@ -159,13 +178,20 @@ class AttachmentViewSet(viewsets.ModelViewSet):
     serializer_class = AttachmentSerializer
 
 
+layer_qs_cache = dict()
+
+
 class LayerViewList(generics.ListCreateAPIView):
+
     def get_queryset(self):
         schema = self.kwargs.get('schema')
         table = self.kwargs.get('table')
-        model = get_model(schema, table)
+        key = '{}/{}'.format(schema, table)
+        if key not in layer_qs_cache:
+            model = get_model(schema, table)
+            layer_qs_cache[key] = model.objects.all()
 
-        return model.objects.all()
+        return layer_qs_cache[key]
 
     def get_serializer_class(self):
         schema = self.kwargs.get('schema')
@@ -173,8 +199,36 @@ class LayerViewList(generics.ListCreateAPIView):
 
         return get_serializer(schema, table)
 
+# LC = dict()
+
+# class LayerViewList(generics.ListAPIView):
+
+#     def list(self, request, *args, **kwargs):
+#         schema = self.kwargs.get('schema')
+#         table = self.kwargs.get('table')
+#         key = '{}/{}'.format(schema, table)
+#         if key not in LC:
+#             model = get_model(schema, table)
+#             ser = get_serializer(schema, table)()
+#             features = []
+#             for row in model.objects.all().iterator():
+#                 features.append(ser.to_representation(row))
+#             LC[key] = dict(
+#                 type='FeatureCollection',
+#                 features=features
+#             )
+
+#         return JsonResponse(LC[key])
+
+#     def get_serializer_class(self):
+#         schema = self.kwargs.get('schema')
+#         table = self.kwargs.get('table')
+
+#         return get_serializer(schema, table)
+
 
 class AliasViewSet(viewsets.ModelViewSet):
+
     """
     API endpoint that allows alias to be viewed or edited.
     """

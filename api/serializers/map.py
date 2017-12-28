@@ -110,6 +110,7 @@ class UserMapSerializer(NonNullModelSerializer):
     lastModified = serializers.SerializerMethodField(read_only=True)
     user = serializers.PrimaryKeyRelatedField(read_only=True)
 
+    status = serializers.ChoiceField(UserMap.STATUS_CHOICES)
     title = MessageRecordSerializer()
     description = MessageRecordSerializer()
     baseLayer = BaseLayerSerializer(source='base_layer')
@@ -169,6 +170,7 @@ class UserMapSerializer(NonNullModelSerializer):
         )
 
     def update(self, i, validated_data):
+        status = validated_data.get('status')
         title_data = validated_data.get('title')
         description_data = validated_data.get('description')
         image_url = validated_data.get('image_url')
@@ -181,6 +183,7 @@ class UserMapSerializer(NonNullModelSerializer):
                 .select_for_update()
                 .get(pk=i.pk))
 
+            instance.update_status(status)
             instance.update_title(title_data)
             instance.update_description(description_data)
             instance.update_image(image_url)
