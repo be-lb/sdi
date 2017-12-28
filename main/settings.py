@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     'documents',
     'timeserie',
     'catalog',
-    'render',
+    # 'render',
     'rest_framework',
     'rest_framework_gis',
     'corsheaders',
