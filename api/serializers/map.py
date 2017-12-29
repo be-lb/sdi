@@ -24,6 +24,7 @@ from rest_framework import serializers
 from ..models import (
     BaseLayer,
     Category,
+    LayerGroup,
     LayerInfo,
     MessageRecord,
     MetaData,
@@ -87,6 +88,12 @@ class BaseLayerSerializer(serializers.ModelSerializer):
         model = BaseLayer
         fields = ('id', 'name', 'srs', 'params', 'url')
 
+class LayerGroupSerializer(serializers.ModelSerializer):
+    name = MessageRecordSerializer()
+
+    class Meta:
+        model = LayerGroup
+        fields = ('id', 'name')
 
 class LayerInfoSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField()
@@ -98,10 +105,11 @@ class LayerInfoSerializer(serializers.ModelSerializer):
     visible = serializers.BooleanField()
     style = serializers.JSONField()
     featureViewOptions = serializers.JSONField(source='feature_view_options')
+    group = LayerGroupSerializer(allow_null=True)
 
     class Meta:
         model = LayerInfo
-        fields = ('id', 'metadataId', 'visible', 'style', 'featureViewOptions')
+        fields = ('id', 'metadataId', 'visible', 'style', 'featureViewOptions', 'group')
 
 
 class UserMapSerializer(NonNullModelSerializer):

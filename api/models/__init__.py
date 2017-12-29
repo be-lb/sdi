@@ -18,6 +18,7 @@ from .map import (
     Attachment,
     BaseLayer,
     Category,
+    LayerGroup,
     LayerInfo,
     UserMap,
     Attachment, )

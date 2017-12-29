@@ -22,7 +22,7 @@ from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 
-from .message import MessageRecord, message
+from .message import MessageRecord, message, message_field
 from .metadata import MetaData
 
 
@@ -36,6 +36,16 @@ class Category(models.Model):
     def __str__(self):
         return str(self.name)
 
+class LayerGroup(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = message_field('layergroup_name')
+
+    def update(self, data):
+        self.name.update_record(**data)
+
+    def __str__(self):
+        return str(self.name)
+    
 
 class LayerInfo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -46,6 +56,11 @@ class LayerInfo(models.Model):
     visible = models.BooleanField()
     style = JSONField()
     feature_view_options = JSONField()
+    group = models.ForeignKey(
+        LayerGroup,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True, )
 
     def update(self, data):
         self.metadata = data.pop('metadata')

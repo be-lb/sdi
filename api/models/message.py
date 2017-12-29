@@ -24,7 +24,8 @@ class MessageRecord(models.Model):
     parameters = JSONField(null=True, blank=True)
 
     def __str__(self):
-        return 'fr: {}\nnl: {}'.format(self.fr[:32], self.nl[:32])
+        # return 'fr: {}\nnl: {}'.format(self.fr[:32], self.nl[:32])
+        return self.fr[:64]
 
     def update_record(self, fr='', nl='', parameters=None):
         self.fr = fr
