@@ -45,7 +45,7 @@ class LayerGroup(models.Model):
 
     def __str__(self):
         return str(self.name)
-    
+
 
 class LayerInfo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -71,7 +71,10 @@ class LayerInfo(models.Model):
         self.save()
 
     def __str__(self):
-        return str(self.metadata.title)
+        m = self.usermap_set.first()
+        if m is not None:
+            return '{} # {}'.format(str(m.title), str(self.metadata.title))
+        return 'None # {}'.format(str(self.metadata.title))
 
 
 class BaseLayer(models.Model):
