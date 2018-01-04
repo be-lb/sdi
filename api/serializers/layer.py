@@ -43,7 +43,8 @@ SELECT row_to_json(fc)
     FROM (
         SELECT 
           'Feature' AS type, 
-          ST_AsGeoJSON(sd.{geometry_column})::json AS geometry, 
+          ST_AsGeoJSON(sd.{geometry_column})::json AS geometry,
+          {pk_column} as id, 
           row_to_json((
             SELECT prop FROM (SELECT {field_names}) AS prop
            )) AS properties
@@ -58,8 +59,10 @@ def get_query(schema, table):
     for field in model._meta.get_fields():
         if field.get_attname() != geometry_field:
             fields.append(field.column)
+    pk_field = model._meta.pk.column
     
     return GEOJSON_QUERY.format(
+            pk_column=pk_field,
             schema=schema,
             table=table,
             geometry_column=geometry_field,
