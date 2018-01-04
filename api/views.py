@@ -20,6 +20,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedire
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
+from rest_framework.decorators import APIView
 from rest_framework import viewsets
 from rest_framework import generics
 from rest_framework.response import Response
@@ -33,7 +34,7 @@ from .serializers import (
     MessageRecordSerializer, MetaDataSerializer, TopicSerializer,
     UserMapSerializer, UserSerializer, AttachmentSerializer, AliasSerializer)
 
-from .serializers.layer import get_serializer, get_model
+from .serializers.layer import get_serializer, get_model, get_geojson
 
 
 def login_view(request):
@@ -178,26 +179,39 @@ class AttachmentViewSet(viewsets.ModelViewSet):
     serializer_class = AttachmentSerializer
 
 
-layer_qs_cache = dict()
+class LayerViewList(APIView):
+    """get a geojson from a table"""
+    def get(self, request, schema, table):
+        ckey = '{}.{}'.format(schema, table)
+        data = cache.get(ckey)
+        if data is None:
+            data = cache.get_or_set(ckey , get_geojson(schema, table) , 3600)
+        
+        return Response(data)
 
 
-class LayerViewList(generics.ListCreateAPIView):
 
-    def get_queryset(self):
-        schema = self.kwargs.get('schema')
-        table = self.kwargs.get('table')
-        key = '{}/{}'.format(schema, table)
-        if key not in layer_qs_cache:
-            model = get_model(schema, table)
-            layer_qs_cache[key] = model.objects.all()
 
-        return layer_qs_cache[key]
+# layer_qs_cache = dict()
 
-    def get_serializer_class(self):
-        schema = self.kwargs.get('schema')
-        table = self.kwargs.get('table')
 
-        return get_serializer(schema, table)
+# class LayerViewList(generics.ListAPIView):
+
+#     def get_queryset(self):
+#         schema = self.kwargs.get('schema')
+#         table = self.kwargs.get('table')
+#         key = '{}/{}'.format(schema, table)
+#         if key not in layer_qs_cache:
+#             model = get_model(schema, table)
+#             layer_qs_cache[key] = model.objects.all()
+
+#         return layer_qs_cache[key]
+
+    # def get_serializer_class(self):
+    #     schema = self.kwargs.get('schema')
+    #     table = self.kwargs.get('table')
+
+    #     return get_serializer(schema, table)
 
 # LC = dict()
 
