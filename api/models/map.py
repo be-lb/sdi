@@ -62,6 +62,12 @@ class LayerInfo(models.Model):
         null=True,
         blank=True, )
 
+    legend = models.ForeignKey(
+        MessageRecord,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True, )
+
     def update(self, data):
         self.metadata = data.pop('metadata')
         # DRF gives us a plain MetaData Model, weird

@@ -106,10 +106,19 @@ class LayerInfoSerializer(serializers.ModelSerializer):
     style = serializers.JSONField()
     featureViewOptions = serializers.JSONField(source='feature_view_options')
     group = LayerGroupSerializer(allow_null=True)
+    legend = MessageRecordSerializer(allow_null=True)
 
     class Meta:
         model = LayerInfo
-        fields = ('id', 'metadataId', 'visible', 'style', 'featureViewOptions', 'group')
+        fields = (
+            'id', 
+            'metadataId', 
+            'visible', 
+            'style', 
+            'featureViewOptions', 
+            'group', 
+            'legend'
+            )
 
 
 class UserMapSerializer(NonNullModelSerializer):
