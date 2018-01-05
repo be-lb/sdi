@@ -213,6 +213,10 @@ class UserMap(models.Model):
                 print('Failed to Link Layer {}'.format(e))
                 print('{}'.format(layer_data))
 
+    def update_base_layer(self, data):
+        self.base_layer = data
+
+
     def __str__(self):
         return str(self.title)
 

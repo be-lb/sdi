@@ -20,6 +20,7 @@ from .map import (
     Category,
     LayerGroup,
     LayerInfo,
+    LayerLink,
     UserMap,
     Attachment, )
 

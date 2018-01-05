@@ -20,6 +20,7 @@ import json
 from django.urls import reverse
 from django.db import transaction
 from rest_framework import serializers
+from django.db import models
 
 from ..models import (
     BaseLayer,
@@ -95,6 +96,27 @@ class LayerGroupSerializer(serializers.ModelSerializer):
         model = LayerGroup
         fields = ('id', 'name')
 
+
+class LayerInfoSerializerList(serializers.ListSerializer):
+    def to_representation(self, data):
+        """
+        List of object instances -> List of dicts of primitive datatypes.
+        """
+        # Dealing with nested relationships, data can be a Manager,
+        # so, first get a queryset from the Manager if needed
+        # print('list {} {}'.format(type(data), dir(self)))
+        # iterable = data.all() if isinstance(data, models.Manager) else data
+        iterable = data.order_by('user_map_layer__sort_index')
+        results = []
+        for item in iterable:
+            print('{}'.format(item))
+            results.append(self.child.to_representation(item))
+
+        return results
+        # return [
+        #     self.child.to_representation(item) for item in iterable
+        # ]
+
 class LayerInfoSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField()
     metadataId = serializers.PrimaryKeyRelatedField(
@@ -110,6 +132,7 @@ class LayerInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LayerInfo
+        list_serializer_class = LayerInfoSerializerList
         fields = (
             'id', 
             'metadataId', 
@@ -119,6 +142,13 @@ class LayerInfoSerializer(serializers.ModelSerializer):
             'group', 
             'legend'
             )
+
+    # @classmethod
+    # def many_init(cls, *args, **kwargs):
+    #     # layers = instance.layers.order_by('user_map_layer__sort_index')
+    #     # kwargs['child'] = cls()
+    #     print('lis {} {}'.format(args, kwargs))
+    #     return LayerInfoSerializer(*args, **kwargs)
 
 
 class UserMapSerializer(NonNullModelSerializer):
@@ -193,6 +223,7 @@ class UserMapSerializer(NonNullModelSerializer):
         image_url = validated_data.get('image_url')
         categories = validated_data.get('categories', [])
         layers = validated_data.get('layers', [])
+        # base_layer = validated_data.get('base_layer')
 
         with transaction.atomic():
             instance = (
