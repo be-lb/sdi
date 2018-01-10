@@ -164,11 +164,7 @@ class UserMap(models.Model):
         blank=True, )
     categories = models.ManyToManyField(Category, through='CategoryLink')
     layers = models.ManyToManyField(LayerInfo, through='LayerLink')
-    base_layer = models.ForeignKey(
-        BaseLayer,
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True, )
+    base_layer = models.CharField(max_length=256)
 
     objects = UserMapManager()
 

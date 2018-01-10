@@ -107,15 +107,10 @@ class LayerInfoSerializerList(serializers.ListSerializer):
         # print('list {} {}'.format(type(data), dir(self)))
         # iterable = data.all() if isinstance(data, models.Manager) else data
         iterable = data.order_by('user_map_layer__sort_index')
-        results = []
-        for item in iterable:
-            print('{}'.format(item))
-            results.append(self.child.to_representation(item))
 
-        return results
-        # return [
-        #     self.child.to_representation(item) for item in iterable
-        # ]
+        return [
+            self.child.to_representation(item) for item in iterable
+        ]
 
 class LayerInfoSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField()
@@ -160,7 +155,9 @@ class UserMapSerializer(NonNullModelSerializer):
     status = serializers.ChoiceField(UserMap.STATUS_CHOICES)
     title = MessageRecordSerializer()
     description = MessageRecordSerializer()
-    baseLayer = BaseLayerSerializer(source='base_layer')
+    baseLayer = serializers.CharField(
+        source='base_layer',
+    )
     imageUrl = serializers.CharField(
         source='image_url',
         required=False,
@@ -223,7 +220,7 @@ class UserMapSerializer(NonNullModelSerializer):
         image_url = validated_data.get('image_url')
         categories = validated_data.get('categories', [])
         layers = validated_data.get('layers', [])
-        # base_layer = validated_data.get('base_layer')
+        base_layer = validated_data.get('base_layer')
 
         with transaction.atomic():
             instance = (
@@ -237,5 +234,6 @@ class UserMapSerializer(NonNullModelSerializer):
             instance.update_image(image_url)
             instance.update_categories(categories)
             instance.update_layers(layers)
+            instance.update_base_layer(base_layer)
 
         return instance

@@ -33,6 +33,9 @@ class MessageRecord(models.Model):
         self.parameters = parameters
         self.save()
 
+    def to_dict(self):
+        return dict(fr=self.fr, nl=self.nl)
+
 
 def message_field(name):
     return models.ForeignKey(

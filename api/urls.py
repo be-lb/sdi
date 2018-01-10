@@ -38,11 +38,20 @@ router.register(r'alias', views.AliasViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^', include(router.urls)),
+
     url(r'^layers/(?P<schema>.+)/(?P<table>.+)/$',
         views.LayerViewList.as_view(),
-        name='layers_list'),
-    url(r'^auth/login', views.login_view, name='api.login'),
-    url(r'^auth/logout', views.logout_view, name='api.logout'),
-    # url(r'^auth/', include('rest_framework.urls',
-    #                        namespace='rest_framework'))
+        name='api.layers_list'),
+    
+    url(r'^auth/login', 
+        views.login_view, 
+        name='api.login'),
+    url(r'^auth/logout', 
+        views.logout_view, 
+        name='api.logout'),
+    
+    url(r'^wmsconfig/(?P<id>.+)/(?P<name>.+)$', 
+        views.get_wms_config, 
+        name='api.wms_config'),
+    
 ]

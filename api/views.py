@@ -36,6 +36,8 @@ from .serializers import (
 
 from .serializers.layer import get_serializer, get_model, get_geojson
 
+from webservice.models import Service
+
 
 def login_view(request):
     if request.method == "POST":
@@ -65,6 +67,28 @@ def logout_view(request):
         logout(request)
         return HttpResponse(JSONRenderer().render('logout'))
     return HttpResponseBadRequest('Wrong Verb')
+
+
+def get_wms_config(request, id, name):
+    service = Service.objects.get(service='wms', id=id)
+    layer = service.wms_layers.get(name=name)
+    
+    data = dict(
+        url=reverse('webservice.wms_proxy', args=[service.id]),
+        name=layer.display_name.to_dict(),
+        params=dict(
+            LAYERS=layer.layers.to_dict(),
+            STYLES=layer.styles,
+            VERSION=service.version,
+        )
+    )
+
+    if service.version == '1.1.1':
+        data.update(srs=layer.crs)
+    else:
+        data.update(crs=layer.crs)
+
+    return JsonResponse(data)
 
 
 class UserViewSet(viewsets.ModelViewSet):
