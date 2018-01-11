@@ -124,6 +124,8 @@ class LayerInfoSerializer(serializers.ModelSerializer):
     featureViewOptions = serializers.JSONField(source='feature_view_options')
     group = LayerGroupSerializer(allow_null=True)
     legend = MessageRecordSerializer(allow_null=True)
+    minZoom = serializers.IntegerField(source='min_zoom')
+    maxZoom = serializers.IntegerField(source='max_zoom')
 
     class Meta:
         model = LayerInfo
@@ -135,15 +137,11 @@ class LayerInfoSerializer(serializers.ModelSerializer):
             'style', 
             'featureViewOptions', 
             'group', 
-            'legend'
+            'legend',
+            'minZoom',
+            'maxZoom',
             )
-
-    # @classmethod
-    # def many_init(cls, *args, **kwargs):
-    #     # layers = instance.layers.order_by('user_map_layer__sort_index')
-    #     # kwargs['child'] = cls()
-    #     print('lis {} {}'.format(args, kwargs))
-    #     return LayerInfoSerializer(*args, **kwargs)
+            
 
 
 class UserMapSerializer(NonNullModelSerializer):
