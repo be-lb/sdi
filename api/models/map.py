@@ -68,6 +68,9 @@ class LayerInfo(models.Model):
         null=True,
         blank=True, )
 
+    min_zoom = models.PositiveIntegerField(default=0, null=True, blank=True)
+    max_zoom = models.PositiveIntegerField(default=30, null=True, blank=True)
+
     def update(self, data):
         self.metadata = data.pop('metadata')
         # DRF gives us a plain MetaData Model, weird
