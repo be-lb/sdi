@@ -53,5 +53,8 @@ urlpatterns = [
     url(r'^wmsconfig/(?P<id>.+)/(?P<name>.+)$', 
         views.get_wms_config, 
         name='api.wms_config'),
+    url(r'^wmsconfig/$', 
+        views.get_wms_layers, 
+        name='api.wms_layers'),
     
 ]

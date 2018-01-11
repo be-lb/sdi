@@ -69,10 +69,7 @@ def logout_view(request):
     return HttpResponseBadRequest('Wrong Verb')
 
 
-def get_wms_config(request, id, name):
-    service = Service.objects.get(service='wms', id=id)
-    layer = service.wms_layers.get(name=name)
-    
+def make_wms_config(service, layer):
     data = dict(
         url=reverse('webservice.wms_proxy', args=[service.id]),
         name=layer.display_name.to_dict(),
@@ -88,7 +85,25 @@ def get_wms_config(request, id, name):
     else:
         data.update(crs=layer.crs)
 
-    return JsonResponse(data)
+    return data
+
+
+def get_wms_config(request, id, name):
+    service = Service.objects.get(service='wms', id=id)
+    layer = service.wms_layers.get(name=name)
+
+    return JsonResponse(make_wms_config(service, layer))
+
+def get_wms_layers(request):
+    services = Service.objects.filter(service='wms')
+    results = dict()
+
+    for service in services:
+        for layer in service.wms_layers.all():
+            key = '{}/{}'.format(service.id, layer.name)
+            results[key] = make_wms_config(service, layer)
+
+    return JsonResponse(results)
 
 
 class UserViewSet(viewsets.ModelViewSet):
