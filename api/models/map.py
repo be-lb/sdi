@@ -77,6 +77,13 @@ class LayerInfo(models.Model):
         self.visible = data.pop('visible')
         self.style = data.pop('style')
         self.feature_view_options = data.pop('feature_view_options')
+        legend = data.pop('legend', None)
+        if legend is not None:
+            if self.legend is not None:
+                self.legend.update_record(**legend)
+            else:
+                self.legend = message(**legend)
+
         self.save()
 
     def __str__(self):
