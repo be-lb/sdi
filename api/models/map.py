@@ -185,7 +185,6 @@ class UserMap(models.Model):
 
     def update_image(self, image_url=None):
         self.image_url = image_url
-        self.save()
 
     def update_categories(self, data=[]):
         self.categories.clear()

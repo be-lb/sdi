@@ -233,5 +233,6 @@ class UserMapSerializer(NonNullModelSerializer):
             instance.update_categories(categories)
             instance.update_layers(layers)
             instance.update_base_layer(base_layer)
+            instance.save()
 
         return instance
