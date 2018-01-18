@@ -203,11 +203,13 @@ class UserMapSerializer(NonNullModelSerializer):
         user = request.user
         title_data = validated_data.pop('title')
         description_data = validated_data.pop('description')
+        base_layer = validated_data.pop('base_layer')
         image_url = validated_data.get('image_url')
         return UserMap.objects.create_map(
             user,
             title_data,
             description_data,
+            base_layer,
             image_url,
         )
 

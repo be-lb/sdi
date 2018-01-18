@@ -128,13 +128,13 @@ def get_default_base_layer():
 
 class UserMapManager(models.Manager):
 
-    def create_map(self, user, title_data, description_data, image_url=None):
+    def create_map(self, user, title_data, description_data, base_layer, image_url=None):
         instance = UserMap(
             user=user,
             title=message(**title_data),
             description=message(**description_data),
             image_url=image_url,
-            base_layer=get_default_base_layer(), )
+            base_layer=base_layer, ) 
         instance.save()
         return instance
 
