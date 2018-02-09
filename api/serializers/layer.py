@@ -15,6 +15,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from django.conf import settings
 from django.db import connections
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from layers.models import get_layer
@@ -43,7 +44,7 @@ SELECT row_to_json(fc)
     FROM (
         SELECT 
           'Feature' AS type, 
-          ST_AsGeoJSON(sd.{geometry_column})::json AS geometry,
+          ST_AsGeoJSON(sd.{geometry_column}, {max_decimal_digits})::json AS geometry,
           {pk_column} as id, 
           row_to_json((
             SELECT prop FROM (SELECT {field_names}) AS prop
@@ -65,6 +66,7 @@ def get_query(schema, table):
             pk_column=pk_field,
             schema=schema,
             table=table,
+            max_decimal_digits=getattr(settings, 'MAX_DECIMAL_DIGITS', 2),
             geometry_column=geometry_field,
             field_names=', '.join(fields))
 
