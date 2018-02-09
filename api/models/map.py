@@ -77,6 +77,8 @@ class LayerInfo(models.Model):
         self.visible = data.pop('visible')
         self.style = data.pop('style')
         self.feature_view_options = data.pop('feature_view_options')
+        self.min_zoom = data.pop('min_zoom', 0)
+        self.max_zoom = data.pop('max_zoom', 30)
         legend = data.pop('legend', None)
         if legend is not None:
             if self.legend is not None:
@@ -134,7 +136,7 @@ class UserMapManager(models.Manager):
             title=message(**title_data),
             description=message(**description_data),
             image_url=image_url,
-            base_layer=base_layer, ) 
+            base_layer=base_layer, )
         instance.save()
         return instance
 
