@@ -170,7 +170,8 @@ class UserMap(models.Model):
         MessageRecord,
         on_delete=models.PROTECT,
         related_name='map_description', )
-    image_url = models.URLField(
+    image_url = models.CharField(
+        max_length=512,
         null=True,
         blank=True, )
     categories = models.ManyToManyField(Category, through='CategoryLink')
