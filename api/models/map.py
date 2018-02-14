@@ -159,8 +159,7 @@ class UserMap(models.Model):
         User,
         on_delete=models.PROTECT,
         related_name='maps',
-        default=0,
-        editable=False, )
+        default=0, )
     title = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
