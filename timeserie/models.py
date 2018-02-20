@@ -8,6 +8,7 @@ def get_manager(schema):
     return m
 
 class TimeserieRecord(models.Model):
+    NO_QUALITY = '__none__'
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=256)
     schema = models.CharField(max_length=256)
@@ -15,7 +16,7 @@ class TimeserieRecord(models.Model):
 
     time_field = models.CharField(max_length=256)
     value_field = models.CharField(max_length=256)
-    quality_field = models.CharField(max_length=256)
+    quality_field = models.CharField(max_length=256, default=NO_QUALITY)
 
 
     def create_model(self):
@@ -23,12 +24,11 @@ class TimeserieRecord(models.Model):
         model_fields = dict()
 
         def make_record(instance):
-            ts = getattr(instance, self.time_field)
-            return [
-            math.floor(ts.timestamp()),
-            getattr(instance, self.value_field),
-            getattr(instance, self.quality_field),
-            ]
+            date = getattr(instance, self.time_field)
+            ts = math.floor(date.timestamp())
+            value = getattr(instance, self.value_field)
+            quality = getattr(instance, self.quality_field)
+            return [ ts, value, quality ]
         
         
         model_fields['Meta'] = type('Meta', (),
@@ -42,7 +42,10 @@ class TimeserieRecord(models.Model):
         
         model_fields[self.time_field] = models.DateTimeField(primary_key=True)
         model_fields[self.value_field] = models.FloatField()
-        model_fields[self.quality_field] = models.FloatField()
+        if self.quality_field != TimeserieRecord.NO_QUALITY:
+            model_fields[self.quality_field] = models.FloatField()
+        else:
+            model_fields[self.quality_field] = 1.0
 
 
         return type('Timeserie', (models.Model, ), model_fields)
