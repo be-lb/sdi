@@ -178,7 +178,7 @@ class MetaDataViewSet(viewsets.ModelViewSet):
         'topics', 'keywords', 'responsible_organisation',
         'point_of_contact', 'point_of_contact__user',
         'responsible_organisation__name', 'point_of_contact__organisation',
-        'point_of_contact__organisation__name')
+        'point_of_contact__organisation__name').order_by('resource_identifier')
     serializer_class = MetaDataSerializer
     pagination_class = Pagination
 
