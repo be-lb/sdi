@@ -1,5 +1,4 @@
 from django.contrib.admin import ModelAdmin, SimpleListFilter
-
 from django.conf import settings
 
 

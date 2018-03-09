@@ -51,5 +51,6 @@ urlpatterns = [
         name='login'),
     url(r'^catalog/', include('catalog.urls')),
     url(r'^webservice/', include('webservice.urls')),
+    url(r'^remote-manage/', include('remote_manage.urls')),
     # url(r'^render/', include('render.urls')),
 ]
