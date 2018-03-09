@@ -23,7 +23,7 @@ Layers:
     - user is in the same group as a map containing this layer
     - a map containing this layer is in the PUBLIC_GROUP
 
-Metadata:
+Metadata, Alias:
   - can always be viewed
   - can be changed if
     - user is in the DEFAULT_GROUP

@@ -239,7 +239,11 @@ add_perm(delete(Attachment), is_attachment_author)
 add_perm(view(Attachment), always_allow)
 
 add_perm(view(User), is_user)
+
 add_perm(view(MetaData), always_allow)
 add_perm(change(MetaData), user_is_default_group)
+
+add_perm(view(Alias), always_allow)
+add_perm(change(Alias), user_is_default_group)
 
 print('api.rules loaded')
