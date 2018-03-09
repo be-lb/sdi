@@ -210,6 +210,16 @@ def is_public_layer(user, layer):
     return False
 
 
+@predicate
+def user_is_default_group(user):
+    try:
+        user.groups.get(name=DEFAULT_GROUP)
+        return True
+    except Group.DoesNotExist:
+        return False
+    return False
+
+
 ##############
 # RULES      #
 ##############
@@ -230,5 +240,6 @@ add_perm(view(Attachment), always_allow)
 
 add_perm(view(User), is_user)
 add_perm(view(MetaData), always_allow)
+add_perm(change(MetaData), user_is_default_group)
 
 print('api.rules loaded')
