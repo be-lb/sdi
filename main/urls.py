@@ -34,6 +34,10 @@ from django.contrib.auth import views as auth_views
 
 from main.views import index
 
+admin.site.site_header = 'geodata'
+admin.site.site_title = 'geodata'
+admin.site.index_title = 'geodata administration'
+
 urlpatterns = [
     url(r'^$', index, name='main.index'),
     url(r'^layers/', include('layers.urls')),

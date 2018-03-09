@@ -20,7 +20,7 @@ from datetime import datetime
 from django.conf import settings
 from django.db import models
 from django.contrib.postgres.fields import JSONField
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 from .message import MessageRecord, message, message_field
 from .metadata import MetaData
@@ -31,10 +31,12 @@ class Category(models.Model):
     name = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
-        related_name='category_name', )
+        related_name='category_name',
+    )
 
     def __str__(self):
         return str(self.name)
+
 
 class LayerGroup(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -52,7 +54,8 @@ class LayerInfo(models.Model):
     metadata = models.ForeignKey(
         MetaData,
         on_delete=models.PROTECT,
-        related_name='layer_info_md', )
+        related_name='layer_info_md',
+    )
     visible = models.BooleanField()
     style = JSONField()
     feature_view_options = JSONField()
@@ -60,13 +63,15 @@ class LayerInfo(models.Model):
         LayerGroup,
         on_delete=models.PROTECT,
         null=True,
-        blank=True, )
+        blank=True,
+    )
 
     legend = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
         null=True,
-        blank=True, )
+        blank=True,
+    )
 
     min_zoom = models.PositiveIntegerField(default=0, null=True, blank=True)
     max_zoom = models.PositiveIntegerField(default=30, null=True, blank=True)
@@ -100,13 +105,15 @@ class BaseLayer(models.Model):
     name = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
-        related_name='base_layer_name', )
+        related_name='base_layer_name',
+    )
     srs = models.TextField()
     params = JSONField()
     url = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
-        related_name='base_layer_url', )
+        related_name='base_layer_url',
+    )
 
     def __str__(self):
         return str(self.name)
@@ -124,19 +131,25 @@ def get_default_base_layer():
             name=name,
             srs=srs,
             params=params,
-            url=url, )
+            url=url,
+        )
     return base
 
 
 class UserMapManager(models.Manager):
-
-    def create_map(self, user, title_data, description_data, base_layer, image_url=None):
+    def create_map(self,
+                   user,
+                   title_data,
+                   description_data,
+                   base_layer,
+                   image_url=None):
         instance = UserMap(
             user=user,
             title=message(**title_data),
             description=message(**description_data),
             image_url=image_url,
-            base_layer=base_layer, )
+            base_layer=base_layer,
+        )
         instance.save()
         return instance
 
@@ -154,26 +167,31 @@ class UserMap(models.Model):
     status = models.CharField(
         max_length=32,
         choices=STATUS_CHOICES,
-        default=DRAFT, )
+        default=DRAFT,
+    )
     user = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
         related_name='maps',
-        default=0, )
+        default=0,
+    )
     title = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
         related_name='map_title',
         null=True,
-        blank=True, )
+        blank=True,
+    )
     description = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
-        related_name='map_description', )
+        related_name='map_description',
+    )
     image_url = models.CharField(
         max_length=512,
         null=True,
-        blank=True, )
+        blank=True,
+    )
     categories = models.ManyToManyField(Category, through='CategoryLink')
     layers = models.ManyToManyField(LayerInfo, through='LayerLink')
     base_layer = models.CharField(max_length=256)
@@ -184,7 +202,7 @@ class UserMap(models.Model):
         ordering = ['-last_modified']
 
     def update_status(self, status):
-        self.status = status # could be a nice to send notifications
+        self.status = status  # could be a nice to send notifications
 
     def update_title(self, data):
         self.title.update_record(**data)
@@ -200,9 +218,7 @@ class UserMap(models.Model):
         self.save()
         for cat in data:
             # cat = Category.objects.get(id=cat_id)
-            CategoryLink.objects.create(
-                category=cat,
-                user_map=self)
+            CategoryLink.objects.create(category=cat, user_map=self)
 
     def update_layers(self, layers=[]):
         self.layers.clear()
@@ -214,7 +230,8 @@ class UserMap(models.Model):
                 LayerLink.objects.create(
                     layer=layer,
                     user_map=self,
-                    sort_index=idx, )
+                    sort_index=idx,
+                )
                 print('Attached Layer {} at index {}'.format(layer, idx))
             except Exception as e:
                 print('Failed to Link Layer {}'.format(e))
@@ -223,13 +240,11 @@ class UserMap(models.Model):
     def update_base_layer(self, data):
         self.base_layer = data
 
-
     def __str__(self):
         return str(self.title)
 
 
 class AttachmentManager(models.Manager):
-
     def create_attachment(self, name_data, url_data, user_map):
         instance = Attachment(
             name=message(**name_data),
@@ -244,15 +259,18 @@ class Attachment(models.Model):
     name = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
-        related_name='attachment_name', )
+        related_name='attachment_name',
+    )
     url = models.ForeignKey(
         MessageRecord,
         on_delete=models.PROTECT,
-        related_name='attachment_url', )
+        related_name='attachment_url',
+    )
     user_map = models.ForeignKey(
         UserMap,
         on_delete=models.CASCADE,
-        related_name='attachment_user_map', )
+        related_name='attachment_user_map',
+    )
 
     objects = AttachmentManager()
 
@@ -268,11 +286,13 @@ class LayerLink(models.Model):
     layer = models.ForeignKey(
         LayerInfo,
         on_delete=models.CASCADE,
-        related_name='user_map_layer', )
+        related_name='user_map_layer',
+    )
     user_map = models.ForeignKey(
         UserMap,
         on_delete=models.CASCADE,
-        related_name='layer_user_map', )
+        related_name='layer_user_map',
+    )
     sort_index = models.IntegerField()
 
 
@@ -280,8 +300,27 @@ class CategoryLink(models.Model):
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
-        related_name='user_map_category', )
+        related_name='user_map_category',
+    )
     user_map = models.ForeignKey(
         UserMap,
         on_delete=models.CASCADE,
-        related_name='category_user_map', )
+        related_name='category_user_map',
+    )
+
+
+class PermissionGroup(models.Model):
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.CASCADE,
+        related_name='user_map_permission_group',
+    )
+
+    user_map = models.ForeignKey(
+        UserMap,
+        on_delete=models.CASCADE,
+        related_name='permission_group_user_map',
+    )
+
+    def __str__(self):
+        return str(self.group.name)

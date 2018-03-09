@@ -16,13 +16,15 @@
 
 from .map import (
     Attachment,
+    Attachment,
     BaseLayer,
     Category,
     LayerGroup,
     LayerInfo,
     LayerLink,
+    PermissionGroup,
     UserMap,
-    Attachment, )
+)
 
 from .message import MessageRecord
 
@@ -35,6 +37,7 @@ from .metadata import (
     ResponsibleOrganisation,
     Role,
     Thesaurus,
-    Topic, )
+    Topic,
+)
 
 from .alias import Alias

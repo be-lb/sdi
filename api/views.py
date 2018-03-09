@@ -16,16 +16,16 @@
 from json import loads
 from django.core.serializers import serialize
 from django.urls import reverse
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
 from rest_framework.decorators import APIView
-from rest_framework import viewsets
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.exceptions import PermissionDenied, MethodNotAllowed, AuthenticationFailed
 
 from .models import (Category, Keyword, LayerInfo, MessageRecord, MetaData,
                      Topic, UserMap, Attachment, Alias)
@@ -35,8 +35,16 @@ from .serializers import (
     UserMapSerializer, UserSerializer, AttachmentSerializer, AliasSerializer)
 
 from .serializers.layer import get_serializer, get_model, get_geojson
+from .permissions import ViewSetWithPermissions
+from .rules import LAYER_VIEW_PERMISSION
 
 from webservice.models import Service
+
+renderer = JSONRenderer()
+
+
+def render_json(data):
+    return renderer.render(data)
 
 
 def login_view(request):
@@ -48,25 +56,25 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            json_data = JSONRenderer().render(UserSerializer(user).data)
+            json_data = UserSerializer(user).data
             # if next:
             #     next_comps = next.split('/')
             #     next_app = next_comps[0]
             #     next_path = '/'.join(next_comps[1:])
             #     next_url = reverse('clients.root', args=(next_app, next_path))
             #     return HttpResponseRedirect(next_url)
-            return HttpResponse(json_data)
+            return JsonResponse(json_data)
         else:
-            return HttpResponseBadRequest('Authentication Failed')
+            raise AuthenticationFailed()
 
-    return HttpResponseBadRequest('Wrong Verb')
+    raise MethodNotAllowed(request.method)
 
 
 def logout_view(request):
     if request.method == "POST":
         logout(request)
-        return HttpResponse(JSONRenderer().render('logout'))
-    return HttpResponseBadRequest('Wrong Verb')
+        return JsonResponse({'logout': 'OK'})
+    raise MethodNotAllowed(request.method)
 
 
 def make_wms_config(service, layer):
@@ -77,8 +85,7 @@ def make_wms_config(service, layer):
             LAYERS=layer.layers.to_dict(),
             STYLES=layer.styles,
             VERSION=service.version,
-        )
-    )
+        ))
 
     if service.version == '1.1.1':
         data.update(srs=layer.crs)
@@ -94,6 +101,7 @@ def get_wms_config(request, id, name):
 
     return JsonResponse(make_wms_config(service, layer))
 
+
 def get_wms_layers(request):
     services = Service.objects.filter(service='wms')
     results = dict()
@@ -106,8 +114,7 @@ def get_wms_layers(request):
     return JsonResponse(results)
 
 
-class UserViewSet(viewsets.ModelViewSet):
-
+class UserViewSet(ViewSetWithPermissions):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -115,29 +122,21 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-class UserMapViewSet(viewsets.ModelViewSet):
-
+class UserMapViewSet(ViewSetWithPermissions):
     """
     API endpoint that allows user maps to be viewed or edited.
     """
-
     serializer_class = UserMapSerializer
 
     def get_queryset(self):
         if 'list' == self.action:
-            return (
-                UserMap.objects.filter(
-                    status='published'
-                    ).order_by(
-                    '-last_modified'
-                    )
-                )
+            return (UserMap.objects.filter(
+                status='published').order_by('-last_modified'))
 
         return UserMap.objects.all()
 
 
-class MessageViewSet(viewsets.ModelViewSet):
-
+class MessageViewSet(ViewSetWithPermissions):
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -145,8 +144,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageRecordSerializer
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
-
+class CategoryViewSet(ViewSetWithPermissions):
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -154,8 +152,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
 
 
-class LayerInfoViewSet(viewsets.ModelViewSet):
-
+class LayerInfoViewSet(ViewSetWithPermissions):
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -167,18 +164,18 @@ class Pagination(PageNumberPagination):
     page_size = 120
 
 
-class MetaDataViewSet(viewsets.ModelViewSet):
-
+class MetaDataViewSet(ViewSetWithPermissions):
     """
     API endpoint that allows MetaData to be viewed or edited.
     """
 
     queryset = MetaData.objects.select_related(
         'title', 'abstract', 'bounding_box').prefetch_related(
-        'topics', 'keywords', 'responsible_organisation',
-        'point_of_contact', 'point_of_contact__user',
-        'responsible_organisation__name', 'point_of_contact__organisation',
-        'point_of_contact__organisation__name').order_by('resource_identifier')
+            'topics', 'keywords', 'responsible_organisation',
+            'point_of_contact', 'point_of_contact__user',
+            'responsible_organisation__name', 'point_of_contact__organisation',
+            'point_of_contact__organisation__name').order_by(
+                'resource_identifier')
     serializer_class = MetaDataSerializer
     pagination_class = Pagination
 
@@ -198,21 +195,21 @@ class MetaDataViewSet(viewsets.ModelViewSet):
     #     return Response(data)
 
 
-class TopicViewSet(viewsets.ReadOnlyModelViewSet):
+class TopicViewSet(ViewSetWithPermissions):
 
     queryset = Topic.objects.prefetch_related('name', 'thesaurus',
                                               'thesaurus__name')
     serializer_class = TopicSerializer
 
 
-class KeywordViewSet(viewsets.ReadOnlyModelViewSet):
+class KeywordViewSet(ViewSetWithPermissions):
 
     queryset = Keyword.objects.prefetch_related(
         'name', 'thesaurus', 'thesaurus__name').order_by('thesaurus')
     serializer_class = KeywordSerializer
 
 
-class AttachmentViewSet(viewsets.ModelViewSet):
+class AttachmentViewSet(ViewSetWithPermissions):
 
     queryset = Attachment.objects.all()
     serializer_class = AttachmentSerializer
@@ -220,19 +217,21 @@ class AttachmentViewSet(viewsets.ModelViewSet):
 
 class LayerViewList(APIView):
     """get a geojson from a table"""
+
     def get(self, request, schema, table):
+        user = request.user
+        if not user.has_perm(LAYER_VIEW_PERMISSION, (schema, table)):
+            raise PermissionDenied()
+
         ckey = '{}.{}'.format(schema, table)
         data = cache.get(ckey)
         if data is None:
-            data = cache.get_or_set(ckey , get_geojson(schema, table) , 3600)
-        
+            data = cache.get_or_set(ckey, get_geojson(schema, table), 3600)
+
         return Response(data)
 
 
-
-
 # layer_qs_cache = dict()
-
 
 # class LayerViewList(generics.ListAPIView):
 
@@ -246,11 +245,11 @@ class LayerViewList(APIView):
 
 #         return layer_qs_cache[key]
 
-    # def get_serializer_class(self):
-    #     schema = self.kwargs.get('schema')
-    #     table = self.kwargs.get('table')
+# def get_serializer_class(self):
+#     schema = self.kwargs.get('schema')
+#     table = self.kwargs.get('table')
 
-    #     return get_serializer(schema, table)
+#     return get_serializer(schema, table)
 
 # LC = dict()
 
@@ -280,8 +279,7 @@ class LayerViewList(APIView):
 #         return get_serializer(schema, table)
 
 
-class AliasViewSet(viewsets.ModelViewSet):
-
+class AliasViewSet(ViewSetWithPermissions):
     """
     API endpoint that allows alias to be viewed or edited.
     """

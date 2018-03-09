@@ -39,11 +39,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'pf1&!nhd&i4p=r%aa@m!1r#r^6v*ncl@hkhg6a22mj@o8j+-ty'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = [
-    'localhost', '127.0.0.1', '.speculoos'
-]
+ALLOWED_HOSTS = [ 'localhost', '127.0.0.1' ]
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -69,7 +67,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_gis',
     'corsheaders',
+    'rules.apps.AutodiscoverRulesConfig',
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'rules.permissions.ObjectPermissionBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -84,6 +88,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'main.urls'
+
+
 
 TEMPLATES = [
     {
