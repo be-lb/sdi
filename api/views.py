@@ -35,7 +35,7 @@ from .serializers import (
     UserMapSerializer, UserSerializer, AttachmentSerializer, AliasSerializer)
 
 from .serializers.layer import get_serializer, get_model, get_geojson
-from .permissions import ViewSetWithPermissions
+from .permissions import ViewSetWithPermissions, ViewSetWithPermissionsAndFilter
 from .rules import LAYER_VIEW_PERMISSION
 
 from webservice.models import Service
@@ -57,12 +57,6 @@ def login_view(request):
         if user is not None:
             login(request, user)
             json_data = UserSerializer(user).data
-            # if next:
-            #     next_comps = next.split('/')
-            #     next_app = next_comps[0]
-            #     next_path = '/'.join(next_comps[1:])
-            #     next_url = reverse('clients.root', args=(next_app, next_path))
-            #     return HttpResponseRedirect(next_url)
             return JsonResponse(json_data)
         else:
             raise AuthenticationFailed()
@@ -114,7 +108,7 @@ def get_wms_layers(request):
     return JsonResponse(results)
 
 
-class UserViewSet(ViewSetWithPermissions):
+class UserViewSet(ViewSetWithPermissionsAndFilter):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -122,7 +116,7 @@ class UserViewSet(ViewSetWithPermissions):
     serializer_class = UserSerializer
 
 
-class UserMapViewSet(ViewSetWithPermissions):
+class UserMapViewSet(ViewSetWithPermissionsAndFilter):
     """
     API endpoint that allows user maps to be viewed or edited.
     """
@@ -138,7 +132,7 @@ class UserMapViewSet(ViewSetWithPermissions):
 
 class MessageViewSet(ViewSetWithPermissions):
     """
-    API endpoint that allows user maps to be viewed or edited.
+    API endpoint that allows messages to be viewed or edited.
     """
     queryset = MessageRecord.objects.all()
     serializer_class = MessageRecordSerializer
@@ -161,7 +155,7 @@ class LayerInfoViewSet(ViewSetWithPermissions):
 
 
 class Pagination(PageNumberPagination):
-    page_size = 120
+    page_size = 256
 
 
 class MetaDataViewSet(ViewSetWithPermissions):
@@ -169,30 +163,9 @@ class MetaDataViewSet(ViewSetWithPermissions):
     API endpoint that allows MetaData to be viewed or edited.
     """
 
-    queryset = MetaData.objects.select_related(
-        'title', 'abstract', 'bounding_box').prefetch_related(
-            'topics', 'keywords', 'responsible_organisation',
-            'point_of_contact', 'point_of_contact__user',
-            'responsible_organisation__name', 'point_of_contact__organisation',
-            'point_of_contact__organisation__name').order_by(
-                'resource_identifier')
+    queryset = MetaData.objects.fetch_bulk().order_by('resource_identifier')
     serializer_class = MetaDataSerializer
     pagination_class = Pagination
-
-    # def list(self, request, *args, **kwargs):
-    #     def get_data():
-    #         queryset = self.filter_queryset(self.get_queryset())
-
-    #         page = self.paginate_queryset(queryset)
-    #         if page is not None:
-    #             serializer = self.get_serializer(page, many=True)
-    #             return serializer.data
-
-    #         serializer = self.get_serializer(queryset, many=True)
-    #         serializer.data
-
-    #     data = cache.get_or_set( request.path, get_data, 3600 * 24)
-    #     return Response(data)
 
 
 class TopicViewSet(ViewSetWithPermissions):
