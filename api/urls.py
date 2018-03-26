@@ -27,9 +27,11 @@ router.register(r'layerinfos', views.LayerInfoViewSet)
 router.register(r'users', views.UserViewSet)
 router.register(r'keywords', views.KeywordViewSet)
 router.register(r'topics', views.TopicViewSet)
-router.register(r'metadatas', views.MetaDataViewSet)
 router.register(r'attachments', views.AttachmentViewSet)
 router.register(r'alias', views.AliasViewSet)
+router.register(r'metadatas', views.MetaDataViewSet)
+router.register(r'md/poc', views.PointOfContactViewSet)
+router.register(r'md/org', views.ResponsibleOrganisationViewSet)
 
 # for u in router.urls:
 #     print(u)
@@ -38,23 +40,13 @@ router.register(r'alias', views.AliasViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^', include(router.urls)),
-
     url(r'^layers/(?P<schema>.+)/(?P<table>.+)/$',
         views.LayerViewList.as_view(),
         name='api.layers_list'),
-    
-    url(r'^auth/login', 
-        views.login_view, 
-        name='api.login'),
-    url(r'^auth/logout', 
-        views.logout_view, 
-        name='api.logout'),
-    
-    url(r'^wmsconfig/(?P<id>.+)/(?P<name>.+)$', 
-        views.get_wms_config, 
+    url(r'^auth/login', views.login_view, name='api.login'),
+    url(r'^auth/logout', views.logout_view, name='api.logout'),
+    url(r'^wmsconfig/(?P<id>.+)/(?P<name>.+)$',
+        views.get_wms_config,
         name='api.wms_config'),
-    url(r'^wmsconfig/$', 
-        views.get_wms_layers, 
-        name='api.wms_layers'),
-    
+    url(r'^wmsconfig/$', views.get_wms_layers, name='api.wms_layers'),
 ]

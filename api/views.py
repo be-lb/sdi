@@ -28,11 +28,13 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import PermissionDenied, MethodNotAllowed, AuthenticationFailed
 
 from .models import (Category, Keyword, LayerInfo, MessageRecord, MetaData,
-                     Topic, UserMap, Attachment, Alias)
+                     Topic, UserMap, Attachment, Alias, PointOfContact,
+                     Organisation, ResponsibleOrganisation, Organisation)
 from .serializers import (
     CategorySerializer, KeywordSerializer, LayerInfoSerializer,
     MessageRecordSerializer, MetaDataSerializer, TopicSerializer,
-    UserMapSerializer, UserSerializer, AttachmentSerializer, AliasSerializer)
+    UserMapSerializer, UserSerializer, AttachmentSerializer, AliasSerializer,
+    PointOfContactSerializer, ResponsibleOrgSerializer)
 
 from .serializers.layer import get_serializer, get_model, get_geojson
 from .permissions import ViewSetWithPermissions, ViewSetWithPermissionsAndFilter
@@ -259,3 +261,19 @@ class AliasViewSet(ViewSetWithPermissions):
     queryset = Alias.objects.prefetch_related('replace')
     serializer_class = AliasSerializer
     # pagination_class = Pagination
+
+
+class PointOfContactViewSet(ViewSetWithPermissions):
+    """
+    API endpoint that allows point of contact to be viewed.
+    """
+    queryset = PointOfContact.objects.select_related('organisation')
+    serializer_class = PointOfContactSerializer
+
+
+class ResponsibleOrganisationViewSet(ViewSetWithPermissions):
+    """
+    API endpoint that allows organisation to be viewed.
+    """
+    queryset = ResponsibleOrganisation.objects
+    serializer_class = ResponsibleOrgSerializer

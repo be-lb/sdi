@@ -62,7 +62,7 @@ class ResponsibleOrgSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ResponsibleOrganisation
-        fields = ('organisationName', 'contactName', 'email', 'roleCode')
+        fields = ('id', 'organisationName', 'contactName', 'email', 'roleCode')
 
     def get_role(self, instance):
         return instance.role.code
@@ -86,7 +86,7 @@ class PointOfContactSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PointOfContact
-        fields = ('organisationName', 'contactName', 'email')
+        fields = ('id', 'organisationName', 'contactName', 'email')
 
     def get_org_name(self, instance):
         return MessageRecordSerializer(
