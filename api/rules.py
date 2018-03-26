@@ -271,6 +271,7 @@ add_perm(view(Topic), always_allow)
 add_perm(view(Thesaurus), always_allow)
 add_perm(view(BoundingBox), always_allow)
 add_perm(view(Organisation), always_allow)
+add_perm(view(ResponsibleOrganisation), always_allow)
 add_perm(view(PointOfContact), always_allow)
 add_perm(view(Role), always_allow)
 
