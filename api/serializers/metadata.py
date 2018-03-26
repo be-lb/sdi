@@ -16,8 +16,8 @@
 
 from rest_framework import serializers
 
-from ..models import (Thesaurus, MetaData, Topic, Keyword, BoundingBox, PointOfContact,
-                      ResponsibleOrganisation, PointOfContact)
+from ..models import (Thesaurus, MetaData, Topic, Keyword, BoundingBox,
+                      PointOfContact, ResponsibleOrganisation, PointOfContact)
 from .message import MessageRecordSerializer
 
 
@@ -27,6 +27,7 @@ class ThesaurusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Thesaurus
         fields = ('id', 'name', 'uri')
+
 
 class TopicSerializer(serializers.ModelSerializer):
     name = MessageRecordSerializer()
@@ -61,7 +62,7 @@ class ResponsibleOrgSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ResponsibleOrganisation
-        fields = ('organisationName', 'contactName', 'email', 'roleCode')
+        fields = ('id', 'organisationName', 'contactName', 'email', 'roleCode')
 
     def get_role(self, instance):
         return instance.role.code
@@ -85,7 +86,7 @@ class PointOfContactSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PointOfContact
-        fields = ('organisationName', 'contactName', 'email')
+        fields = ('id', 'organisationName', 'contactName', 'email')
 
     def get_org_name(self, instance):
         return MessageRecordSerializer(
@@ -103,7 +104,7 @@ class PointOfContactSerializer(serializers.ModelSerializer):
 
 
 class MetaDataSerializer(serializers.ModelSerializer):
-    id = serializers.SerializerMethodField()
+    id = serializers.UUIDField(read_only=True)
     resourceTitle = MessageRecordSerializer(source='title')
     resourceAbstract = MessageRecordSerializer(source='abstract')
     uniqueResourceIdentifier = serializers.CharField(
@@ -125,14 +126,20 @@ class MetaDataSerializer(serializers.ModelSerializer):
     geographicBoundingBox = BoundingBoxSerializer(source='bounding_box')
     temporalReference = serializers.SerializerMethodField(
         method_name='get_temporal_ref')
-    responsibleOrganisation = ResponsibleOrgSerializer(
-        many=True,
-        source='responsibleorganisation_set',
-        read_only=True, )
-    metadataPointOfContact = PointOfContactSerializer(
-        many=True,
-        source='point_of_contact',
-        read_only=True, )
+    responsibleOrganisation = serializers.PrimaryKeyRelatedField(
+        many=True, source='responsible_organisation', read_only=True)
+    metadataPointOfContact = serializers.PrimaryKeyRelatedField(
+        many=True, source='point_of_contact', read_only=True)
+    # responsibleOrganisation = ResponsibleOrgSerializer(
+    #     many=True,
+    #     source='responsibleorganisation_set',
+    #     read_only=True,
+    # )
+    # metadataPointOfContact = PointOfContactSerializer(
+    #     many=True,
+    #     source='point_of_contact',
+    #     read_only=True,
+    # )
 
     metadataDate = serializers.DateTimeField(source='revision')
 
@@ -151,7 +158,8 @@ class MetaDataSerializer(serializers.ModelSerializer):
             'responsibleOrganisation',
             'metadataPointOfContact',
             'metadataDate',
-            'published', )
+            'published',
+        )
 
     def get_id(self, instance):
         return str(instance.id)
@@ -159,7 +167,8 @@ class MetaDataSerializer(serializers.ModelSerializer):
     def get_temporal_ref(self, instance):
         return dict(
             creation=instance.creation,
-            revision=instance.revision, )
+            revision=instance.revision,
+        )
 
     # def get_bounding_box(self, instance):
     #     return [BoundingBoxSerializer(

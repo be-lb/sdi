@@ -60,11 +60,7 @@ class BoundingBox(models.Model):
 
     def to_polygon_wkt(self):
         return 'POLYGON(({west} {south}, {west} {north}, {east} {north}, {east} {south}, {west} {south}))'.format(
-        west=self.west,
-        north=self.north,
-        east=self.east,
-        south=self.south
-        )
+            west=self.west, north=self.north, east=self.east, south=self.south)
 
     def __str__(self):
         return '{}, {}, {}, {}'.format(self.west, self.south, self.east,
@@ -84,7 +80,8 @@ class PointOfContact(models.Model):
     user = models.ForeignKey(User)
     organisation = models.ForeignKey(
         Organisation,
-        related_name='point_of_contact', )
+        related_name='point_of_contact',
+    )
 
     def __str__(self):
         return '{} @ {}'.format(self.user.get_username(), self.organisation)
@@ -116,15 +113,52 @@ class MetaDataManager(models.Manager):
             abstract=abstract_rec,
             resource_identifier=table_name,
             bounding_box=bb,
-            geometry_type=geometry_type, )
+            geometry_type=geometry_type,
+        )
 
         md.point_of_contact.add(poc)
         ResponsibleOrganisation.objects.create(
             organisation=org,
             md=md,
-            role=role, )
+            role=role,
+        )
 
         return md
+
+    def fetch_bulk(self):
+        select = (
+            'title',
+            'abstract',
+            'bounding_box',
+        )
+
+        # prefetch = (
+        #     'topics',
+        #     'topics__name',
+        #     'topics__thesaurus',
+        #     'topics__thesaurus__name',
+        #     'keywords',
+        #     'keywords__name',
+        #     'keywords__thesaurus',
+        #     'keywords__thesaurus__name',
+        #     'responsibleorganisation_set',
+        #     'responsibleorganisation_set__organisation',
+        #     'responsibleorganisation_set__organisation__name',
+        #     'responsibleorganisation_set__role',
+        #     'responsibleorganisation_set__role__name',
+        #     'point_of_contact',
+        #     'point_of_contact__user',
+        #     'point_of_contact__organisation',
+        #     'point_of_contact__organisation__name',
+        # )
+
+        prefetch = (
+            'responsible_organisation',
+            'topics',
+            'keywords',
+            'point_of_contact',
+        )
+        return self.select_related(*select).prefetch_related(*prefetch)
 
 
 class MetaData(models.Model):
@@ -141,7 +175,8 @@ class MetaData(models.Model):
         (POLYGON, POLYGON),
         (MULTIPOINT, MULTIPOINT),
         (MULTILINESTRING, MULTILINESTRING),
-        (MULTIPOLYGON, MULTIPOLYGON), )
+        (MULTIPOLYGON, MULTIPOLYGON),
+    )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = message_field('md_title')
@@ -162,11 +197,13 @@ class MetaData(models.Model):
         Organisation,
         through='ResponsibleOrganisation',
         through_fields=('md', 'organisation'),
-        related_name='md_responsible_org', )
+        related_name='md_responsible_org',
+    )
 
     point_of_contact = models.ManyToManyField(
         PointOfContact,
-        related_name='md_point_of_contact', )
+        related_name='md_point_of_contact',
+    )
 
     objects = MetaDataManager()
 

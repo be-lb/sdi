@@ -14,30 +14,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from .map import (
-    Attachment,
-    Attachment,
-    BaseLayer,
-    Category,
-    LayerGroup,
-    LayerInfo,
-    LayerLink,
-    PermissionGroup,
-    UserMap,
-)
-
-from .message import MessageRecord
-
-from .metadata import (
-    BoundingBox,
-    Keyword,
-    MetaData,
-    Organisation,
-    PointOfContact,
-    ResponsibleOrganisation,
-    Role,
-    Thesaurus,
-    Topic,
-)
-
-from .alias import Alias
+from .map import *
+from .message import *
+from .metadata import *
+from .alias import *

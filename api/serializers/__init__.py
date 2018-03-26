@@ -14,17 +14,8 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from .message import MessageRecordSerializer
-from .map import (
-    UserMapSerializer,
-    CategorySerializer,
-    LayerInfoSerializer,
-    AttachmentSerializer, )
-from .user import UserSerializer
-
-from .metadata import (
-    MetaDataSerializer,
-    KeywordSerializer,
-    TopicSerializer, )
-
+from .message import *
+from .map import *
+from .user import *
+from .metadata import *
 from .alias import AliasSerializer

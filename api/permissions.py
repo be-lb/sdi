@@ -55,4 +55,7 @@ class RulesPermissionsFilter(BaseFilterBackend):
 
 class ViewSetWithPermissions(viewsets.ModelViewSet):
     permission_classes = (ObjectPermissions, )
+
+
+class ViewSetWithPermissionsAndFilter(ViewSetWithPermissions):
     filter_backends = (RulesPermissionsFilter, )
