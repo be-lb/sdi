@@ -1,64 +1,122 @@
-
+##
+# http://docs.pycsw.org/en/latest/administration.html#mapping-to-an-existing-repository
+##
 
 MD_CORE_MODEL = {
     'typename': 'pycsw:CoreMetadata',
     'outputschema': 'http://pycsw.org/metadata',
     'mappings': {
-        'pycsw:Abstract': 'abstract',
-        'pycsw:AccessConstraints': 'accessconstraints',
-        'pycsw:AlternateTitle': 'alternate',
-        'pycsw:AnyText': 'csw_anytext',
-        'pycsw:BoundingBox': 'wkt_bbox',
-        'pycsw:Classification': 'classification',
-        'pycsw:ConditionApplyingToAccessAndUse': 'conditionapplyingtoaccessanduse',
-        'pycsw:Contributor': 'contributor',
-        'pycsw:CouplingType': 'couplingtype',
-        'pycsw:CreationDate': 'date',
-        'pycsw:Creator': 'creator',
-        'pycsw:CRS': 'crs',
-        'pycsw:Date': 'date',
-        'pycsw:Degree': 'degree',
-        'pycsw:Denominator': 'denominator',
-        'pycsw:DistanceUOM': 'distanceuom',
-        'pycsw:DistanceValue': 'distancevalue',
-        'pycsw:Format': 'spatial_representation_type_string',
-        'pycsw:GeographicDescriptionCode': 'geodescode',
-        'pycsw:Identifier': 'uuid',
-        'pycsw:InsertDate': 'csw_insert_date',
-        'pycsw:Keywords': 'keyword_csv',
-        'pycsw:KeywordType': 'keywordstype',
-        'pycsw:Language': 'language',
-        'pycsw:Lineage': 'lineage',
-        'pycsw:Links': 'download_links',
-        'pycsw:MdSource': 'csw_mdsource',
-        'pycsw:Modified': 'date',
-        'pycsw:OperatesOn': 'operateson',
-        'pycsw:OperatesOnIdentifier': 'operatesonidentifier',
-        'pycsw:OperatesOnName': 'operatesoname',
-        'pycsw:Operation': 'operation',
-        'pycsw:OrganizationName': 'uuid',
-        'pycsw:OtherConstraints': 'otherconstraints',
-        'pycsw:ParentIdentifier': 'parentidentifier',
-        'pycsw:PublicationDate': 'date',
-        'pycsw:Publisher': 'publisher',
-        'pycsw:Relation': 'relation',
-        'pycsw:ResourceLanguage': 'resourcelanguage',
-        'pycsw:ResponsiblePartyRole': 'responsiblepartyrole',
-        'pycsw:RevisionDate': 'date',
-        'pycsw:Schema': 'csw_schema',
-        'pycsw:SecurityConstraints': 'securityconstraints',
-        'pycsw:ServiceType': 'servicetype',
-        'pycsw:ServiceTypeVersion': 'servicetypeversion',
-        'pycsw:Source': 'source',
-        'pycsw:SpecificationDate': 'specificationdate',
-        'pycsw:SpecificationDateType': 'specificationdatetype',
-        'pycsw:SpecificationTitle': 'specificationtitle',
-        'pycsw:TempExtent_begin': 'temporal_extent_start',
-        'pycsw:TempExtent_end': 'temporal_extent_end',
-        'pycsw:Title': 'title',
-        'pycsw:TopicCategory': 'topiccategory',
-        'pycsw:Type': 'csw_type',
-        'pycsw:Typename': 'csw_typename',
-        'pycsw:XML': 'metadata_xml',
+        'pycsw:Abstract':
+        'abstract',
+        'pycsw:AccessConstraints':
+        'accessconstraints',
+        'pycsw:AlternateTitle':
+        'alternate',
+        'pycsw:AnyText':
+        'csw_anytext',
+        'pycsw:BoundingBox':
+        'wkt_bbox',
+        'pycsw:Classification':
+        'classification',
+        'pycsw:ConditionApplyingToAccessAndUse':
+        'conditionapplyingtoaccessanduse',
+        'pycsw:Contributor':
+        'contributor',
+        'pycsw:CouplingType':
+        'couplingtype',
+        'pycsw:CreationDate':
+        'date',
+        'pycsw:Creator':
+        'creator',
+        'pycsw:CRS':
+        'crs',
+        'pycsw:Date':
+        'date',
+        'pycsw:Degree':
+        'degree',
+        'pycsw:Denominator':
+        'denominator',
+        'pycsw:DistanceUOM':
+        'distanceuom',
+        'pycsw:DistanceValue':
+        'distancevalue',
+        'pycsw:Format':
+        'spatial_representation_type_string',
+        'pycsw:GeographicDescriptionCode':
+        'geodescode',
+        'pycsw:Identifier':
+        'uuid',
+        'pycsw:InsertDate':
+        'creation',
+        'pycsw:Keywords':
+        'keyword_csv',
+        'pycsw:KeywordType':
+        'keywordstype',
+        'pycsw:Language':
+        'language',
+        'pycsw:Lineage':
+        'lineage',
+        'pycsw:Links':
+        'download_links',
+        'pycsw:MdSource':
+        'csw_mdsource',
+        'pycsw:Modified':
+        'date',
+        'pycsw:OperatesOn':
+        'operateson',
+        'pycsw:OperatesOnIdentifier':
+        'operatesonidentifier',
+        'pycsw:OperatesOnName':
+        'operatesoname',
+        'pycsw:Operation':
+        'operation',
+        'pycsw:OrganizationName':
+        'uuid',
+        'pycsw:OtherConstraints':
+        'otherconstraints',
+        'pycsw:ParentIdentifier':
+        'parentidentifier',
+        'pycsw:PublicationDate':
+        'date',
+        'pycsw:Publisher':
+        'publisher',
+        'pycsw:Relation':
+        'relation',
+        'pycsw:ResourceLanguage':
+        'resourcelanguage',
+        'pycsw:ResponsiblePartyRole':
+        'responsiblepartyrole',
+        'pycsw:RevisionDate':
+        'date',
+        'pycsw:Schema':
+        'csw_schema',
+        'pycsw:SecurityConstraints':
+        'securityconstraints',
+        'pycsw:ServiceType':
+        'servicetype',
+        'pycsw:ServiceTypeVersion':
+        'servicetypeversion',
+        'pycsw:Source':
+        'source',
+        'pycsw:SpecificationDate':
+        'specificationdate',
+        'pycsw:SpecificationDateType':
+        'specificationdatetype',
+        'pycsw:SpecificationTitle':
+        'specificationtitle',
+        'pycsw:TempExtent_begin':
+        'temporal_extent_start',
+        'pycsw:TempExtent_end':
+        'temporal_extent_end',
+        'pycsw:Title':
+        'title',
+        'pycsw:TopicCategory':
+        'topiccategory',
+        'pycsw:Type':
+        'csw_type',
+        'pycsw:Typename':
+        'csw_typename',
+        'pycsw:XML':
+        'metadata_xml',
     }
 }

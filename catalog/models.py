@@ -1,3 +1,6 @@
 from django.db import models
+from api.models import MetaData
 
-# Create your models here.
+
+class InspireMetaData(models.Model):
+    pass
