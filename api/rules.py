@@ -42,6 +42,26 @@ except AttributeError:
 
 
 @register()
+def check_rules_object_backend(app_configs, **kwargs):
+    errors = []
+    try:
+        auth_backends = settings.AUTHENTICATION_BACKENDS
+        if 'rules.permissions.ObjectPermissionBackend' not in auth_backends:
+            raise Exception(
+                'Missing rules.permissions.ObjectPermissionBackend')
+    except Exception:
+        errors.append(
+            Error(
+                'Missing rules.permissions.ObjectPermissionBackend',
+                hint=
+                'Add \'rules.permissions.ObjectPermissionBackend\' to your AUTHENTICATION_BACKENDS setting',
+                obj=settings,
+                id='sdi.api.E001',
+            ))
+    return errors
+
+
+@register()
 def check_public_group(app_configs, **kwargs):
     errors = []
     if not PUBLIC_GROUP:
@@ -50,7 +70,7 @@ def check_public_group(app_configs, **kwargs):
                 'No Public Group Configured',
                 hint='Set PUBLIC_GROUP in your settings',
                 obj=settings,
-                id='sdi.api.W001',
+                id='sdi.api.E002',
             ))
     return errors
 
@@ -64,7 +84,7 @@ def check_default_group(app_configs, **kwargs):
                 'No Default Group Configured',
                 hint='Set DEFAULT_GROUP in your settings',
                 obj=settings,
-                id='sdi.api.E001',
+                id='sdi.api.E003',
             ))
     return errors
 
@@ -245,5 +265,13 @@ add_perm(change(MetaData), user_is_default_group)
 
 add_perm(view(Alias), always_allow)
 add_perm(change(Alias), user_is_default_group)
+
+add_perm(view(Keyword), always_allow)
+add_perm(view(Topic), always_allow)
+add_perm(view(Thesaurus), always_allow)
+add_perm(view(BoundingBox), always_allow)
+add_perm(view(Organisation), always_allow)
+add_perm(view(PointOfContact), always_allow)
+add_perm(view(Role), always_allow)
 
 print('api.rules loaded')

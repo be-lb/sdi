@@ -45,10 +45,7 @@ class RulesPermissionsFilter(BaseFilterBackend):
         permission = self.perm_format % kwargs
 
         def perm_checker(o):
-            t = user.has_perm(permission, o)
-            print('perm_checker[{}][{}][{}] => {}'.format(
-                user, permission, o, t))
-            return t
+            return user.has_perm(permission, o)
 
         ids = [o.pk for o in filter(perm_checker, queryset)]
         # print('IDS[{}] {}'.format(permission, ids))
