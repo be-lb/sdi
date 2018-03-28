@@ -132,11 +132,11 @@ def get_map_groups(user_map):
 
 
 def get_layer_user(layer_info):
-    get_map_user(layer_info.usermap_set.first())
+    return get_map_user(layer_info.usermap_set.first())
 
 
 def get_attachment_user(attachment):
-    get_map_user(attachment.user_map)
+    return get_map_user(attachment.user_map)
 
 
 def group_intersects(gs1, gs2):
@@ -164,7 +164,7 @@ def get_maps_for_layer(uri):
 
 @predicate
 def is_user(req_user, user_obj):
-    print('is_user {} {} {}'.format(req_user, user_obj, req_user == user_obj))
+    # print('is_user {} {} {}'.format(req_user, user_obj, req_user == user_obj))
     return req_user == user_obj
 
 
