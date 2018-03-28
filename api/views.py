@@ -157,7 +157,7 @@ class LayerInfoViewSet(ViewSetWithPermissions):
 
 
 class Pagination(PageNumberPagination):
-    page_size = 256
+    page_size = 256 / 4
 
 
 class MetaDataViewSet(ViewSetWithPermissions):
