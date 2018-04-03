@@ -18,6 +18,6 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+    url(r'^(.+).csv$', views.timeserie_csv),
     url(r'^(.+)$', views.timeserie),
-    # url(r'^(.+)/$', views.list_layers),
 ]
