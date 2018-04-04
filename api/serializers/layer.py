@@ -1,4 +1,3 @@
-
 #
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
@@ -20,7 +19,6 @@ from django.db import connections
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from layers.models import get_layer
 
-
 # def layer(request, schema, table):
 #     model, ser = get_layer(schema, table)
 #     items = model.objects.using(schema).all()
@@ -33,7 +31,6 @@ from layers.models import get_layer
 #                                      items,
 #                                      geometry_field=geom_f)
 #                 json_ser = partial(json_ser_for_model, att_name)
-
 
 GEOJSON_QUERY = """
 SELECT row_to_json(fc)
@@ -54,21 +51,23 @@ SELECT row_to_json(fc)
   ) AS fc;
 """
 
+
 def get_query(schema, table):
     model, geometry_field, geometry_field_type = get_layer(schema, table)
     fields = []
     for field in model._meta.get_fields():
         if field.get_attname() != geometry_field:
-            fields.append(field.column)
+            fields.append('"{}"'.format(field.column))
     pk_field = model._meta.pk.column
-    
+
     return GEOJSON_QUERY.format(
-            pk_column=pk_field,
-            schema=schema,
-            table=table,
-            max_decimal_digits=getattr(settings, 'MAX_DECIMAL_DIGITS', 2),
-            geometry_column=geometry_field,
-            field_names=', '.join(fields))
+        pk_column=pk_field,
+        schema=schema,
+        table=table,
+        max_decimal_digits=getattr(settings, 'MAX_DECIMAL_DIGITS', 2),
+        geometry_column=geometry_field,
+        field_names=', '.join(fields))
+
 
 def get_geojson(schema, table):
     query = get_query(schema, table)
@@ -81,14 +80,16 @@ def get_geojson(schema, table):
 
 def get_serializer(schema, table):
     model, geometry_field, geometry_field_type = get_layer(schema, table)
-    meta = type('Meta', (), dict(
-        model=model,
-        fields='__all__',
-        geo_field=geometry_field,))
+    meta = type('Meta', (),
+                dict(
+                    model=model,
+                    fields='__all__',
+                    geo_field=geometry_field,
+                ))
     serializer_name = 'serializer_{}_{}'.format(schema, table)
     serializer = type(
         serializer_name,
-        (GeoFeatureModelSerializer,),
+        (GeoFeatureModelSerializer, ),
         dict(Meta=meta),
     )
 
