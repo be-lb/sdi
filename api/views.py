@@ -68,8 +68,13 @@ def login_view(request):
 
 def logout_view(request):
     if request.method == "POST":
+        u = request.user
+        id = u.id
         logout(request)
-        return JsonResponse({'logout': 'OK'})
+        return JsonResponse({
+            'logout': 'OK',
+            'id': id,
+        })
     raise MethodNotAllowed(request.method)
 
 
