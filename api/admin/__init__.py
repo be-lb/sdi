@@ -24,6 +24,7 @@ from .metadata import MetadataAdmin
 from .user_map import UserMapAdmin
 from .alias import AliasAdmin
 from .attachment import AttachmentAdmin
+from .message import MessageRecordAdmin
 
 site.register(Alias, AliasAdmin)
 site.register(Attachment, AttachmentAdmin)
@@ -43,4 +44,4 @@ site.register(UserMap, UserMapAdmin)
 # site.register(BoundingBox)
 # site.register(Category)
 # site.register(Keyword)
-# site.register(MessageRecord)
+site.register(MessageRecord, MessageRecordAdmin)
