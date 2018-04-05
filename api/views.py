@@ -13,13 +13,15 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-from json import loads
+import io
+import codecs
+from json import loads, dump
 from django.core.serializers import serialize
 from django.urls import reverse
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, FileResponse
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth import authenticate, login, logout
-from django.core.cache import cache
+from django.core.cache import caches, InvalidCacheBackendError
 from rest_framework.decorators import APIView
 from rest_framework import generics
 from rest_framework.response import Response
@@ -203,60 +205,37 @@ class LayerViewList(APIView):
         if not user.has_perm(LAYER_VIEW_PERMISSION, (schema, table)):
             raise PermissionDenied()
 
-        ckey = '{}.{}'.format(schema, table)
-        data = cache.get(ckey)
-        if data is None:
-            data = cache.get_or_set(ckey, get_geojson(schema, table), 3600)
+        try:
+            cache = caches['layers']
+            ckey = '{}.{}'.format(schema, table)
+            try:
+                reader = cache.read(ckey)
+                reader_type = type(reader)
+                print('ReaderType {} {}'.format(ckey, reader_type))
+                if reader_type is io.BufferedReader:
+                    return FileResponse(
+                        reader, content_type='application/json')
+                elif reader_type is dict:
+                    return Response(reader)
 
-        return Response(data)
+                response = HttpResponse(
+                    reader, content_type='application/json')
+                return response
 
+            except KeyError:
+                # there's been of juggling to force diskcache
+                # to return a BufferedReader from cache.read
+                stream = io.BytesIO()
+                writer = codecs.getwriter("utf-8")(stream)
+                data = get_geojson(schema, table)
+                dump(data, writer)
+                stream.seek(0)
+                cache.set(ckey, stream, read=True)
+                return Response(data)
 
-# layer_qs_cache = dict()
-
-# class LayerViewList(generics.ListAPIView):
-
-#     def get_queryset(self):
-#         schema = self.kwargs.get('schema')
-#         table = self.kwargs.get('table')
-#         key = '{}/{}'.format(schema, table)
-#         if key not in layer_qs_cache:
-#             model = get_model(schema, table)
-#             layer_qs_cache[key] = model.objects.all()
-
-#         return layer_qs_cache[key]
-
-# def get_serializer_class(self):
-#     schema = self.kwargs.get('schema')
-#     table = self.kwargs.get('table')
-
-#     return get_serializer(schema, table)
-
-# LC = dict()
-
-# class LayerViewList(generics.ListAPIView):
-
-#     def list(self, request, *args, **kwargs):
-#         schema = self.kwargs.get('schema')
-#         table = self.kwargs.get('table')
-#         key = '{}/{}'.format(schema, table)
-#         if key not in LC:
-#             model = get_model(schema, table)
-#             ser = get_serializer(schema, table)()
-#             features = []
-#             for row in model.objects.all().iterator():
-#                 features.append(ser.to_representation(row))
-#             LC[key] = dict(
-#                 type='FeatureCollection',
-#                 features=features
-#             )
-
-#         return JsonResponse(LC[key])
-
-#     def get_serializer_class(self):
-#         schema = self.kwargs.get('schema')
-#         table = self.kwargs.get('table')
-
-#         return get_serializer(schema, table)
+        except InvalidCacheBackendError:
+            print('InvalidCacheBackendError')
+            return Response(get_geojson(schema, table))
 
 
 class AliasViewSet(ViewSetWithPermissions):
