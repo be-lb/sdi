@@ -21,20 +21,22 @@ from django.contrib.postgres.fields import JSONField
 class MessageRecord(models.Model):
     fr = models.TextField(blank=True)
     nl = models.TextField(blank=True)
+    en = models.TextField(blank=True)
     parameters = JSONField(null=True, blank=True)
 
     def __str__(self):
         # return 'fr: {}\nnl: {}'.format(self.fr[:32], self.nl[:32])
         return self.fr[:64]
 
-    def update_record(self, fr='', nl='', parameters=None):
+    def update_record(self, fr='', nl='', en='', parameters=None):
         self.fr = fr
         self.nl = nl
+        self.en = en
         self.parameters = parameters
         self.save()
 
     def to_dict(self):
-        return dict(fr=self.fr, nl=self.nl)
+        return dict(fr=self.fr, nl=self.nl, en=self.en)
 
 
 def message_field(name):
@@ -45,9 +47,9 @@ def message_field(name):
     )
 
 
-def message(fr=None, nl=None):
-    return MessageRecord.objects.create(fr=fr, nl=nl)
+def message(fr=None, nl=None, en=None):
+    return MessageRecord.objects.create(fr=fr, nl=nl, en=en)
 
 
 def simple_message(msg):
-    return message(fr=msg, nl=msg)
+    return message(fr=msg, nl=msg, en=msg)

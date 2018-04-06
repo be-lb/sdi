@@ -1,4 +1,3 @@
-
 #########################################################################
 #  Copyright (C) 2017 Atelier Cartographique <contact@atelier-cartographique.be>
 #
@@ -25,9 +24,9 @@ class UserSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
     maps = serializers.PrimaryKeyRelatedField(
-        required=False, many=True, read_only=True
-    )
+        required=False, many=True, read_only=True)
     layers = serializers.SerializerMethodField()
+
     roles = serializers.SerializerMethodField()
 
     class Meta:
@@ -46,8 +45,7 @@ class UserSerializer(serializers.ModelSerializer):
     def get_roles(self, instance):
         roles = []
         for g in instance.groups.all():
-            roles.append(dict(
-                id=str(g.id),
-                label=dict(fr=g.name, nl=g.name)
-            ))
+            roles.append(
+                dict(
+                    id=str(g.id), label=dict(fr=g.name, nl=g.name, en=g.name)))
         return roles
