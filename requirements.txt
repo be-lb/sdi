@@ -6,14 +6,11 @@ django-user-accounts==2.0.3
 djangorestframework==3.6.3
 djangorestframework-gis==0.11.2
 elasticsearch==2.4.0
-OWSLib==0.13.0
 Pillow==3.3.1
 psycopg2==2.7.3
-pycsw==2.0.3
-pyproj==1.9.5.1
+pycsw==2.2.0
 python-logstash==0.4.6
 redis==2.10.5
 requests==2.11.1
 rules==1.3
-Shapely==1.5.17
 uWSGI==2.0.15
