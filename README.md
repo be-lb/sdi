@@ -17,6 +17,7 @@ Install system dependencies with
 sudo apt install \
     build-essential \
     python3-dev \
+    libgeos-dev \
     libxml2-dev \
     libxslt1-dev\
     libz-dev\
@@ -69,6 +70,15 @@ DATABASES = {
     },
 }
 
+# specific config for layers database
+LAYERS_DB = {
+    'ENGINE': 'django.contrib.gis.db.backends.postgis',
+    'HOST': 'x.x.x.x',
+    'NAME': 'dbname',
+    'PASSWORD': 'password',
+    'USER': 'username',
+}
+
 # here's a little loop to point to your postgis schemas 
 LAYERS_SCHEMAS = [
     'shema_name_0',
@@ -90,30 +100,34 @@ for schema in LAYERS_SCHEMAS:
 
 # clients are declared here in the form
 # name : path/to/distribution
-CLIENTS = {
-    'compose': '/var/sdi-webgis-rw/dist',
-    'view': '/var/sdi-webgis-ro/dist',
-}   
+CLIENTS_ROOT = '/home/pierre/System/src/ibge/sdi-clients
 
-# it's unfortunate to have it here but we need to setup
-# a default base layer somewhere that can be shared across applications
-DEFAULT_BASE_LAYER = {
-    'name': {
-        'fr': 'urbisFRGray',
-        'nl': 'urbisNLGray',
-    },  
-    'srs': 'EPSG:31370',
-    'params': {
-        'LAYERS': {
-            'fr': 'urbisFRGray',
-            'nl': 'urbisNLGray',
-        },
-        'VERSION': '1.1.1',
+
+MAX_DECIMAL_DIGITS = 2
+
+DEFAULT_GROUP = 'sdi:geodata'
+PUBLIC_GROUP = 'sdi:public'
+
+
+# Sorry, but we really need cache
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/home/pierre/System/var/cache/sdi',
+        'OPTIONS': {
+            'MAX_ENTRIES': 200000
+        }
     },
-    'url': {
-        'fr': 'https://geoservices-urbis.irisnet.be/geoserver/ows',
-        'nl': 'https://geoservices-urbis.irisnet.be/geoserver/ows',
-    },
+    'layers': {
+        'BACKEND': 'diskcache.DjangoCache',
+        'LOCATION': '/home/pierre/System/var/cache/sdi/layers',
+        'TIMEOUT': 60 * 60 * 24,
+        'SHARDS': 4,
+        'DATABASE_TIMEOUT': 1.0,
+        'OPTIONS': {
+            'size_limit': 2**32  # 4 gigabytes
+        }
+    }
 }
 
 # a django setting

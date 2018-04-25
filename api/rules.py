@@ -30,13 +30,11 @@ LAYER_VIEW_PERMISSION = 'api.view_layer_data'
 
 try:
     PUBLIC_GROUP = settings.PUBLIC_GROUP
-    public_group_queryset = Group.objects.filter(name=PUBLIC_GROUP)
 except AttributeError:
     PUBLIC_GROUP = None
 
 try:
     DEFAULT_GROUP = settings.DEFAULT_GROUP
-    default_group_queryset = Group.objects.filter(name=DEFAULT_GROUP)
 except AttributeError:
     DEFAULT_GROUP = None
 
@@ -94,6 +92,8 @@ def ensure_group(name):
         Group.objects.get(name=name)
     except Group.DoesNotExist:
         Group.objects.create(name=name)
+    except Exception:
+        pass  # DB is not setup yet or ...
 
 
 ensure_group(DEFAULT_GROUP)
@@ -128,7 +128,7 @@ def get_map_groups(user_map):
     if len(gids) > 0:
         return Group.objects.filter(id__in=gids)
 
-    return default_group_queryset
+    return Group.objects.filter(name=DEFAULT_GROUP)
 
 
 def get_layer_user(layer_info):

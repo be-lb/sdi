@@ -185,8 +185,9 @@ class MetaData(models.Model):
     geometry_type = models.CharField(max_length=16, choices=GEOMETRY)
     published = models.BooleanField(default=False)
 
-    topics = models.ManyToManyField(Topic, related_name='md_topic')
-    keywords = models.ManyToManyField(Keyword, related_name='md_keyword')
+    topics = models.ManyToManyField(Topic, related_name='md_topic', blank=True)
+    keywords = models.ManyToManyField(
+        Keyword, related_name='md_keyword', blank=True)
 
     bounding_box = models.ForeignKey(BoundingBox)
 
