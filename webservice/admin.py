@@ -20,3 +20,11 @@ from .models import *
 
 admin.site.register(Service)
 admin.site.register(WmsLayer)
+
+
+class ServicePermissionAdmin(admin.ModelAdmin):
+    list_display = ('group', 'service')
+    ordering = ('group_id', )
+
+
+admin.site.register(ServicePermission, ServicePermissionAdmin)

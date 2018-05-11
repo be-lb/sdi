@@ -17,16 +17,13 @@
 from django.http import HttpResponseBadRequest, JsonResponse, FileResponse
 from django.urls import reverse
 
-from .proxy import HttpProxy
+from .proxy import HttpProxy, HttpProxyBasicAuth
 from .models import Service
-
-
-
 
 # def get_wms_config(request, id, name):
 #     service = Service.objects.get(service='wms', id=id)
 #     layer = service.wms_layers.get(name=name)
-    
+
 #     data = dict(
 #         url=reverse('webservice.wms_proxy', args=[service.id]),
 #         name=layer.display_name.to_dict(),
@@ -39,9 +36,15 @@ from .models import Service
 
 #     return JsonResponse(data)
 
+
 def proxy_wms_request(request, id):
     service = Service.objects.get(id=id)
-    proxy = HttpProxy.as_view(base_url=service.provider)
+    if service.username is not '' and service.password is not '':
+        proxy = HttpProxyBasicAuth.as_view(
+            base_url=service.provider,
+            username=service.username,
+            password=service.password)
+    else:
+        proxy = HttpProxy.as_view(base_url=service.provider)
 
     return proxy(request, '')
-

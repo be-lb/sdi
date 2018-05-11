@@ -19,9 +19,9 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.contrib.postgres.fields import JSONField
+from django.contrib.auth.models import Group
 
 from api.models.message import message_field
-
 
 
 class Service(models.Model):
@@ -35,16 +35,34 @@ class Service(models.Model):
     id = models.CharField(max_length=126, primary_key=True)
     provider = models.URLField()
     version = models.CharField(max_length=6)
-    service = models.CharField(
-        max_length=6,
-        choices=SERVICE_CHOICES)
+    service = models.CharField(max_length=6, choices=SERVICE_CHOICES)
+
+    username = models.CharField(max_length=126, blank=True)
+    password = models.CharField(max_length=126, blank=True)
 
     def __str__(self):
         return '{} <{}> ({})'.format(self.id, self.provider, self.service)
 
 
+class ServicePermission(models.Model):
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.CASCADE,
+        related_name='service_permission_group',
+    )
+
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.CASCADE,
+        related_name='service_permission_service',
+    )
+
+    def __str__(self):
+        return str(self.group.name)
+
+
 class WmsLayer(models.Model):
-    
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=126)
     display_name = message_field('wms_layer_name')
@@ -53,11 +71,10 @@ class WmsLayer(models.Model):
     styles = models.CharField(max_length=1024)
 
     service = models.ForeignKey(
-        Service, 
+        Service,
         on_delete=models.CASCADE,
         related_name='wms_layers',
-        )
-
+    )
 
     def __str__(self):
         return '{} [{}]'.format(self.name, self.layers)

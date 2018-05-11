@@ -9,7 +9,7 @@
 # Many thanks to Will Larson for providing the inspiration and original source
 # code for this app:
 # http://lethain.com/entry/2008/sep/30/suffer-less-by-using-django-dev-server-as-a-proxy/
-# 
+#
 
 import logging
 import re
@@ -20,8 +20,8 @@ from django.views.generic import View
 
 logger = logging.getLogger(__name__)
 
-
 REWRITE_REGEX = re.compile(r'((?:src|action|href)=["\'])/(?!\/)')
+
 
 class HttpProxy(View):
     """
@@ -47,7 +47,6 @@ class HttpProxy(View):
     The base URL that the proxy should forward requests to.
     """
 
-
     rewrite = False
     """
     If you configure the HttpProxy view on any non-root URL, the proxied
@@ -60,12 +59,13 @@ class HttpProxy(View):
     _msg = 'Response body: \n%s'
 
     def dispatch(self, request, url, *args, **kwargs):
+        # print('URL0: {}'.format(url))
         self.url = url
         self.original_request_path = request.path
         request = self.normalize_request(request)
-   
+
         response = super(HttpProxy, self).dispatch(request, *args, **kwargs)
-    
+
         if self.rewrite:
             response = self.rewrite_response(request, response)
         return response
@@ -78,8 +78,8 @@ class HttpProxy(View):
         This way, any further processing of the proxy'd request can just ignore
         the url given to the proxy and use request.path safely instead.
         """
-        if not self.url.startswith('/'):
-            self.url = '/' + self.url
+        # if not self.url.startswith('/'):
+        #     self.url = '/' + self.url
         request.path = self.url
         request.path_info = self.url
         request.META['PATH_INFO'] = self.url
@@ -97,7 +97,7 @@ class HttpProxy(View):
         """
         proxy_root = self.original_request_path.rsplit(request.path, 1)[0]
         response.content = REWRITE_REGEX.sub(r'\1{}/'.format(proxy_root),
-                response.content)
+                                             response.content)
         return response
 
     def get(self, *args, **kwargs):
@@ -135,5 +135,36 @@ class HttpProxy(View):
             response_body = e.read()
             logger.error(self._msg % response_body)
             status = e.code
-        return HttpResponse(response_body, status=status,
-                            content_type=response.headers['content-type'])
+        return HttpResponse(
+            response_body,
+            status=status,
+            content_type=response.headers['content-type'])
+
+
+class HttpProxyBasicAuth(HttpProxy):
+    username = None
+    password = None
+
+    def get_response(self, body=None, headers={}):
+        # print('URL: {}'.format(self.url))
+        request_url = self.get_full_url(self.url)
+        request = self.create_request(request_url, body=body, headers=headers)
+
+        passman = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+        passman.add_password(None, request_url, self.username, self.password)
+        authhandler = urllib.request.HTTPBasicAuthHandler(passman)
+        opener = urllib.request.build_opener(authhandler)
+
+        response = opener.open(request)
+        try:
+            response_body = response.read()
+            status = response.getcode()
+            logger.debug(self._msg % response_body)
+        except urllib.error.HTTPError as e:
+            response_body = e.read()
+            logger.error(self._msg % response_body)
+            status = e.code
+        return HttpResponse(
+            response_body,
+            status=status,
+            content_type=response.headers['content-type'])

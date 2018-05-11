@@ -4,6 +4,8 @@ from django.conf import settings
 from django.core.checks import Error, register
 from rules import (add_perm, predicate, always_allow, is_superuser)
 
+from webservice.models import Service
+
 from .models import (
     Alias,
     Attachment,
@@ -25,8 +27,6 @@ from .models import (
     Topic,
     UserMap,
 )
-
-LAYER_VIEW_PERMISSION = 'api.view_layer_data'
 
 try:
     PUBLIC_GROUP = settings.PUBLIC_GROUP
@@ -114,6 +114,9 @@ change = partial(permission, 'change')
 add = partial(permission, 'add')
 delete = partial(permission, 'delete')
 
+LAYER_VIEW_PERMISSION = 'api.view_layer_data'
+SERVICE_VIEW_PERMISSION = view(Service)
+
 
 def get_map_user(user_map):
     return user_map.user
@@ -125,6 +128,15 @@ def get_map_groups(user_map):
     """
     pg = user_map.permission_group_user_map.all()
     gids = list(pg.values_list('group', flat=True))
+    if len(gids) > 0:
+        return Group.objects.filter(id__in=gids)
+
+    return Group.objects.filter(name=DEFAULT_GROUP)
+
+
+def get_service_groups(service):
+    gs = service.service_permission_service.all()
+    gids = list(gs.values_list('group', flat=True))
     if len(gids) > 0:
         return Group.objects.filter(id__in=gids)
 
@@ -240,6 +252,19 @@ def user_is_default_group(user):
     return False
 
 
+@predicate
+def is_public_service(user, service):
+    if PUBLIC_GROUP and service:
+        pgs = get_service_groups(service).filter(name=PUBLIC_GROUP)
+        return pgs.count() > 0
+    return False
+
+
+@predicate
+def service_group_intersects(user, service):
+    return group_intersects(user.groups.all(), get_service_groups(service))
+
+
 ##############
 # RULES      #
 ##############
@@ -274,5 +299,7 @@ add_perm(view(Organisation), always_allow)
 add_perm(view(ResponsibleOrganisation), always_allow)
 add_perm(view(PointOfContact), always_allow)
 add_perm(view(Role), always_allow)
+
+add_perm(SERVICE_VIEW_PERMISSION, service_group_intersects | is_public_service)
 
 print('api.rules loaded')

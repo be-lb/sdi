@@ -40,7 +40,7 @@ from .serializers import (
 
 from .serializers.layer import get_serializer, get_model, get_geojson
 from .permissions import ViewSetWithPermissions, ViewSetWithPermissionsAndFilter
-from .rules import LAYER_VIEW_PERMISSION
+from .rules import LAYER_VIEW_PERMISSION, SERVICE_VIEW_PERMISSION
 
 from webservice.models import Service
 
@@ -84,32 +84,38 @@ def make_wms_config(service, layer):
     data = dict(
         url=reverse('webservice.wms_proxy', args=[service.id]),
         name=layer.display_name.to_dict(),
+        srs=layer.crs,
         params=dict(
             LAYERS=layer.layers.to_dict(),
             STYLES=layer.styles,
             VERSION=service.version,
         ))
 
-    if service.version == '1.1.1':
-        data.update(srs=layer.crs)
-    else:
-        data.update(crs=layer.crs)
+    # if service.version == '1.1.1':
+    #     data.update(srs=layer.crs)
+    # else:
+    #     data.update(crs=layer.crs)
 
     return data
 
 
 def get_wms_config(request, id, name):
+    user = request.user
     service = Service.objects.get(service='wms', id=id)
-    layer = service.wms_layers.get(name=name)
+    if not user.has_perm(SERVICE_VIEW_PERMISSION, service):
+        raise PermissionDenied()
 
+    layer = service.wms_layers.get(name=name)
     return JsonResponse(make_wms_config(service, layer))
 
 
 def get_wms_layers(request):
+    user = request.user
     services = Service.objects.filter(service='wms')
     results = dict()
 
-    for service in services:
+    for service in filter(lambda s: user.has_perm(SERVICE_VIEW_PERMISSION, s),
+                          services):
         for layer in service.wms_layers.all():
             key = '{}/{}'.format(service.id, layer.name)
             results[key] = make_wms_config(service, layer)
