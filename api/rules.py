@@ -1,7 +1,6 @@
 from functools import partial
-from django.contrib.auth.models import User, Group
 from django.conf import settings
-from django.core.checks import Error, register
+from django.contrib.auth.models import User, Group
 from rules import (add_perm, predicate, always_allow, is_superuser)
 
 from webservice.models import Service
@@ -39,54 +38,6 @@ except AttributeError:
     DEFAULT_GROUP = None
 
 
-@register()
-def check_rules_object_backend(app_configs, **kwargs):
-    errors = []
-    try:
-        auth_backends = settings.AUTHENTICATION_BACKENDS
-        if 'rules.permissions.ObjectPermissionBackend' not in auth_backends:
-            raise Exception(
-                'Missing rules.permissions.ObjectPermissionBackend')
-    except Exception:
-        errors.append(
-            Error(
-                'Missing rules.permissions.ObjectPermissionBackend',
-                hint=
-                'Add \'rules.permissions.ObjectPermissionBackend\' to your AUTHENTICATION_BACKENDS setting',
-                obj=settings,
-                id='sdi.api.E001',
-            ))
-    return errors
-
-
-@register()
-def check_public_group(app_configs, **kwargs):
-    errors = []
-    if not PUBLIC_GROUP:
-        errors.append(
-            Error(
-                'No Public Group Configured',
-                hint='Set PUBLIC_GROUP in your settings',
-                obj=settings,
-                id='sdi.api.E002',
-            ))
-    return errors
-
-
-@register()
-def check_default_group(app_configs, **kwargs):
-    errors = []
-    if not DEFAULT_GROUP:
-        errors.append(
-            Error(
-                'No Default Group Configured',
-                hint='Set DEFAULT_GROUP in your settings',
-                obj=settings,
-                id='sdi.api.E003',
-            ))
-    return errors
-
-
 def ensure_group(name):
     try:
         Group.objects.get(name=name)
@@ -96,8 +47,11 @@ def ensure_group(name):
         pass  # DB is not setup yet or ...
 
 
-ensure_group(DEFAULT_GROUP)
-ensure_group(PUBLIC_GROUP)
+if DEFAULT_GROUP is not None:
+    ensure_group(DEFAULT_GROUP)
+
+if PUBLIC_GROUP is not None:
+    ensure_group(PUBLIC_GROUP)
 
 ##############
 # HELPERS    #
@@ -301,5 +255,3 @@ add_perm(view(PointOfContact), always_allow)
 add_perm(view(Role), always_allow)
 
 add_perm(SERVICE_VIEW_PERMISSION, service_group_intersects | is_public_service)
-
-print('api.rules loaded')

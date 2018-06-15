@@ -21,6 +21,7 @@ except AttributeError:
 
 @register()
 def check_csw_config_main(app_configs, **kwargs):
+    print('check_csw_config_main')
     errors = []
     if not csw_config_main:
         errors.append(

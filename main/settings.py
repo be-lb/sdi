@@ -106,37 +106,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'main.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
-# LAYERS_DB = {
-#     'ENGINE': 'django.contrib.gis.db.backends.postgis',
-#     'HOST': '10.99.99.11',
-#     'NAME': 'tev',
-#     'PASSWORD': 'poireau',
-#     'USER': 'pacome',
-# }
-# LAYERS_SCHEMAS = [
-#     'tev',
-#     'david',
-# ]
-
-# for schema in LAYERS_SCHEMAS:
-#     db_config = LAYERS_DB.copy()
-#     db_config.update({
-#         'OPTIONS': {
-#             'options': '-c search_path={},public'.format(schema),
-#         },
-#     })
-#     DATABASES[schema] = db_config
-
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
@@ -176,29 +145,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-
-# CLIENTS = {
-#     'compose': '/home/pierre/System/src/be-sdi/sdi-webgis-rw/dist',
-#     'view': '/home/pierre/System/src/be-sdi/webgis-ro/dist',
-# }
-
-# DEFAULT_BASE_LAYER = {
-#     'name': {
-#         'fr': 'urbisFRGray',
-#         'nl': 'urbisNLGray',
-#     },
-#     'srs': 'EPSG:31370',
-#     'params': {
-#         'LAYERS': {
-#             'fr': 'urbisFRGray',
-#             'nl': 'urbisNLGray',
-#         },
-#         'VERSION': '1.1.1',
-#     },
-#     'url': {
-#         'fr': 'https://geoservices-urbis.irisnet.be/geoserver/ows',
-#         'nl': 'https://geoservices-urbis.irisnet.be/geoserver/ows',
-#     },
-# }
-
-# MEDIA_ROOT = '/home/pierre/System/var/www/sdi/'
