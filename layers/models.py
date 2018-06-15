@@ -29,6 +29,8 @@ from django.db.models.constants import LOOKUP_SEP
 from django.db.backends.base.introspection import FieldInfo
 from django.utils.encoding import force_text
 
+from .introspection import DatabaseIntrospection
+
 requires_system_checks = False
 
 
@@ -42,29 +44,9 @@ def get_manager(schema):
     return m
 
 
-# the one from django hurts on materialized views
-def get_table_description(connection, cursor, table_name):
-    "Returns a description of the table, with the DB-API cursor.description interface."
-    # As cursor.description does not return reliably the nullable property,
-    # we have to query the information_schema (#7783)
-    # cursor.execute("""
-    #     SELECT column_name, is_nullable, column_default
-    #     FROM information_schema.columns
-    #     WHERE table_name = %s""", [table_name])
-    # field_map = {line[0]: line[1:] for line in cursor.fetchall()}
-    cursor.execute("SELECT * FROM %s LIMIT 1" %
-                   connection.ops.quote_name(table_name))
-    return [
-        FieldInfo(*(
-            (force_text(line[0]),) +
-            line[1:6] +
-            (False, None)
-        )) for line in cursor.description
-    ]
-
-
 def inspect_table(schema, table_name):
     connection = connections[schema]
+    introspection = DatabaseIntrospection(connection)
 
     # 'table_name_filter' is a stealth option
 
@@ -78,27 +60,24 @@ def inspect_table(schema, table_name):
         known_models = []
         try:
             try:
-                relations = connection.introspection.get_relations(cursor,
-                                                                   table_name)
+                relations = introspection.get_relations(
+                    cursor, table_name, schema)
             except NotImplementedError:
                 relations = {}
             try:
-                constraints = connection.introspection.get_constraints(
-                    cursor, table_name)
+                constraints = introspection.get_constraints(
+                    cursor, table_name, schema)
             except NotImplementedError:
                 constraints = {}
-            primary_key_column = connection.introspection.get_primary_key_column(
-                cursor, table_name)
+            primary_key_column = introspection.get_primary_key_column(
+                cursor, table_name, schema)
             unique_columns = [
                 c['columns'][0] for c in constraints.values()
                 if c['unique'] and len(c['columns']) == 1
             ]
 
-            # table_description =
-            # connection.introspection.get_table_description( cursor,
-            # table_name)
-            table_description = get_table_description(
-                connection, cursor, table_name)
+            table_description = introspection.get_table_description(
+                cursor, table_name, schema)
         except Exception as e:
             # yield "# Unable to inspect table '%s'" % table_name
             # yield "# The error was: %s" % e
@@ -352,10 +331,8 @@ def get_meta(table_name, constraints, column_to_field_name):
     #             tup = '(' + ', '.join("'%s'" % column_to_field_name[c] for c in columns) + ')'
     #             unique_together.append(tup)
 
-    return type(
-        'Meta', (),
-        dict(
-            managed=False, db_table=table_name, app_label='layers'))
+    return type('Meta', (),
+                dict(managed=False, db_table=table_name, app_label='layers'))
     # if unique_together:
     #     tup = '(' + ', '.join(unique_together) + ',)'
     #     meta += ["        unique_together = %s" % tup]
