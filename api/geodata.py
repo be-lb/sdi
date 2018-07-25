@@ -27,6 +27,6 @@ def load_loaders():
             logger.info('Installed geodata loader "{}"'.format(loader))
 
     except Exception as ex:
-        logger.warning('Failed with geodata loader "{}"'.format(loader), ex)
+        logger.warning('Failed with geodata loader "{}"'.format(ex))
 
     return urlpatterns
