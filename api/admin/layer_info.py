@@ -17,7 +17,7 @@ class AttachedLayerInfoListFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         annotated = queryset.annotate(Count('usermap'))
         if self.value() == 'attached':
-            return annotated.filter(usermap__count__gte=0)
+            return annotated.filter(usermap__count__gte=1)
         if self.value() == 'detached':
             return annotated.filter(usermap__count__exact=0)
 
@@ -38,5 +38,7 @@ def user(o):
 
 
 class LayerInfoAdmin(ModelAdmin):
-    list_display = (user, title, map_, 'visible', 'group', 'legend')
+    # search_fields = ['usermap__title__fr', 'usermap__title__nl']
+    search_fields = ['metadata__title__fr', 'metadata__title__nl']
+    list_display = (title, user, map_, 'visible', 'group', 'legend')
     list_filter = (AttachedLayerInfoListFilter, )

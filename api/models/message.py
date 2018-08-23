@@ -38,6 +38,9 @@ class MessageRecord(models.Model):
     def to_dict(self):
         return dict(fr=self.fr, nl=self.nl, en=self.en)
 
+    def clone(self):
+        return MessageRecord.objects.create(fr=self.fr, nl=self.nl, en=self.en)
+
 
 def message_field(name):
     return models.ForeignKey(

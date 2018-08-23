@@ -45,6 +45,9 @@ class LayerGroup(models.Model):
     def update(self, data):
         self.name.update_record(**data)
 
+    def clone(self):
+        return LayerGroup.objects.create(name=sele.name.clone())
+
     def __str__(self):
         return str(self.name)
 
@@ -92,6 +95,23 @@ class LayerInfo(models.Model):
                 self.legend = message(**legend)
 
         self.save()
+
+    def clone(self):
+        obj = LayerInfo(
+            metadata=self.metadata,
+            visible=self.visible,
+            style=self.style,
+            feature_view_options=self.feature_view_options,
+            min_zoom=self.min_zoom,
+            max_zoom=self.max_zoom)
+
+        if self.legend is not None:
+            obj.legend = self.legend.clone()
+        if self.group is not None:
+            obj.group = self.group.clone()
+        obj.save()
+
+        return obj
 
     def __str__(self):
         m = self.usermap_set.first()
@@ -239,6 +259,23 @@ class UserMap(models.Model):
 
     def update_base_layer(self, data):
         self.base_layer = data
+
+    def clone(self):
+        title = self.title.to_dict()
+        for k in title:
+            title[k] = 'copy({})'.format(title[k])
+
+        obj = UserMap.objects.create_map(self.user, title,
+                                         self.description.to_dict(),
+                                         self.base_layer, self.image_url)
+
+        for idx, lyr in enumerate(
+                self.layers.order_by('user_map_layer__sort_index')):
+            LayerLink.objects.create(
+                layer=lyr.clone(), user_map=obj, sort_index=idx)
+            print('Attached Layer {} at index {}'.format(lyr, idx))
+
+        return obj
 
     def __str__(self):
         return str(self.title)
