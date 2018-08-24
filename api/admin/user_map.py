@@ -30,9 +30,17 @@ class UserMapAdmin(ModelAdmin):
     search_fields = ['title__fr', 'title__nl']
 
     def clone_map(self, request, queryset):
-        obj = queryset.first()
-        obj.clone()
-        self.message_user(request, 'successfully cloned {}.'.format(obj.title))
+        dones = []
+        fails = []
+        for obj in queryset:
+            try:
+                obj.clone()
+                dones.append(str(obj.title))
+            except Exception as ex:
+                fails.append('{} because of: {}'.format(obj.title, ex))
+
+        self.message_user(request,
+                          'Successfully cloned {}.'.format(', '.join(dones)))
 
     clone_map.short_description = "Clone selected map"
 
