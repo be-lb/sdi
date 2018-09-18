@@ -126,7 +126,7 @@ class HttpProxy(View):
     def get_response(self, body=None, headers={}):
         request_url = self.get_full_url(self.url)
         request = self.create_request(request_url, body=body, headers=headers)
-        response = urllib.request.urlopen(request)
+        response = urllib.request.urlopen(request, timeout=12)
         try:
             response_body = response.read()
             status = response.getcode()
