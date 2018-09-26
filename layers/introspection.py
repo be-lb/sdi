@@ -112,7 +112,8 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         Returns a dictionary of {field_name: (field_name_other_table, other_table)}
         representing all relationships to the given table.
         """
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT c2.relname, a1.attname, a2.attname
             FROM pg_constraint con
             LEFT JOIN pg_class c1 ON con.conrelid = c1.oid
@@ -129,7 +130,8 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_key_columns(self, cursor, table_name, schema_name='public'):
         key_columns = []
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT kcu.column_name, ccu.table_name AS referenced_table, ccu.column_name AS referenced_column
             FROM information_schema.constraint_column_usage ccu
             LEFT JOIN information_schema.key_column_usage kcu
@@ -142,7 +144,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
                     AND ccu.constraint_name = tc.constraint_name
             WHERE kcu.table_schema = %s AND kcu.table_name = %s 
                 AND tc.constraint_type = 'FOREIGN KEY'""",
-                       [schema_name, table_name])
+            [schema_name, table_name])
         key_columns.extend(cursor.fetchall())
         return key_columns
 
@@ -183,7 +185,8 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         # created.
         # The subquery containing generate_series can be replaced with
         # "WITH ORDINALITY" when support for PostgreSQL 9.3 is dropped.
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 c.conname,
                 array(
@@ -230,7 +233,8 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         # The row_number() function for ordering the index fields can be
         # replaced by WITH ORDINALITY in the unnest() functions when support
         # for PostgreSQL 9.3 is dropped.
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 indexname, array_agg(attname ORDER BY rnum), indisunique, indisprimary,
                 array_agg(ordering ORDER BY rnum), amname, exprdef, s2.attoptions

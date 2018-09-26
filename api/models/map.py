@@ -19,7 +19,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+from jsonfield import JSONField
 from django.contrib.auth.models import User, Group
 
 from .message import MessageRecord, message, message_field
