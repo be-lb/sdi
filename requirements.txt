@@ -1,10 +1,11 @@
 diskcache==3.0.1
-Django==1.11.4
 django-cors-headers==2.1.0
+django-jsonfield==1.0.1
 django-python3-ldap==0.11.1
 django-user-accounts==2.0.3
-djangorestframework==3.6.3
+Django==1.11.4
 djangorestframework-gis==0.11.2
+djangorestframework==3.6.3
 elasticsearch==2.4.0
 Pillow==3.3.1
 psycopg2==2.7.3
