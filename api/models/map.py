@@ -46,7 +46,7 @@ class LayerGroup(models.Model):
         self.name.update_record(**data)
 
     def clone(self):
-        return LayerGroup.objects.create(name=sele.name.clone())
+        return LayerGroup.objects.create(name=self.name.clone())
 
     def __str__(self):
         return str(self.name)
