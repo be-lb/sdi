@@ -18,6 +18,7 @@ from django.conf.urls import url, include
 from rest_framework import routers
 
 from . import views
+from .geodata import load_loaders
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'maps', views.UserMapViewSet, base_name='usermap')
@@ -50,3 +51,5 @@ urlpatterns = [
         name='api.wms_config'),
     url(r'^wmsconfig/$', views.get_wms_layers, name='api.wms_layers'),
 ]
+
+urlpatterns.extend(load_loaders())
