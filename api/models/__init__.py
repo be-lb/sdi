@@ -18,3 +18,4 @@ from .map import *
 from .message import *
 from .metadata import *
 from .alias import *
+from .map_link import *

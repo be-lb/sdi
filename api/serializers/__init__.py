@@ -19,3 +19,4 @@ from .map import *
 from .user import *
 from .metadata import *
 from .alias import AliasSerializer
+from .map_link import MapLinkSerializer

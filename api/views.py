@@ -16,12 +16,15 @@
 import io
 import codecs
 from json import loads, dump
+
 from django.core.serializers import serialize
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, FileResponse
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import caches, InvalidCacheBackendError
+from django.db.models import Q
+
 from rest_framework.decorators import APIView
 from rest_framework import generics
 from rest_framework.response import Response
@@ -29,14 +32,37 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import PermissionDenied, MethodNotAllowed, AuthenticationFailed
 
-from .models import (Category, Keyword, LayerInfo, MessageRecord, MetaData,
-                     Topic, UserMap, Attachment, Alias, PointOfContact,
-                     Organisation, ResponsibleOrganisation, Organisation)
+from .models import (
+    Alias,
+    Attachment,
+    Category,
+    Keyword,
+    LayerInfo,
+    MapLink,
+    MessageRecord,
+    MetaData,
+    Organisation,
+    Organisation,
+    PointOfContact,
+    ResponsibleOrganisation,
+    Topic,
+    UserMap,
+)
 from .serializers import (
-    CategorySerializer, KeywordSerializer, LayerInfoSerializer,
-    MessageRecordSerializer, MetaDataSerializer, TopicSerializer,
-    UserMapSerializer, UserSerializer, AttachmentSerializer, AliasSerializer,
-    PointOfContactSerializer, ResponsibleOrgSerializer)
+    AliasSerializer,
+    AttachmentSerializer,
+    CategorySerializer,
+    KeywordSerializer,
+    LayerInfoSerializer,
+    MapLinkSerializer,
+    MessageRecordSerializer,
+    MetaDataSerializer,
+    PointOfContactSerializer,
+    ResponsibleOrgSerializer,
+    TopicSerializer,
+    UserMapSerializer,
+    UserSerializer,
+)
 
 from .serializers.layer import get_serializer, get_model, get_geojson
 from .permissions import ViewSetWithPermissions, ViewSetWithPermissionsAndFilter
@@ -267,3 +293,14 @@ class ResponsibleOrganisationViewSet(ViewSetWithPermissions):
     """
     queryset = ResponsibleOrganisation.objects
     serializer_class = ResponsibleOrgSerializer
+
+
+class MapLinkList(generics.ListAPIView):
+    serializer_class = MapLinkSerializer
+
+    def get_queryset(self):
+        """
+        List all links to or from an map 
+        """
+        mid = self.kwargs['mid']
+        return MapLink.objects.filter(Q(source=mid) | Q(target=mid))
